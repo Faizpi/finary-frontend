@@ -1,6 +1,6 @@
 # Finary Frontend
 
-React + Vite frontend untuk Finary. Project ini siap deploy ke Vercel dan memakai backend production di `https://api.finary.my.id/api`.
+React + Vite frontend untuk Finary. Project ini siap deploy ke Vercel dan memakai backend production di `https://api-finary.my.id/api`.
 
 ## Setup Lokal
 
@@ -15,15 +15,17 @@ Build produksi:
 npm run build
 ```
 
-## Environment
+## Konfigurasi API
 
-Gunakan environment variable berikut di Vercel:
+Contoh `.env` untuk production:
 
 ```env
-VITE_API_URL=https://api.finary.my.id/api
+VITE_API_URL=https://api-finary.my.id/api
 ```
 
-`src/lib/api.js` membaca `VITE_API_URL`, jadi source API client tidak perlu diubah.
+Untuk lokal, gunakan `VITE_API_URL=http://127.0.0.1:8000/api`.
+
+Salin `.env.example` jika perlu membuat konfigurasi lokal baru. `src/lib/api.js` membaca `VITE_API_URL` dan tidak perlu diubah.
 
 ## Deploy ke Vercel
 
@@ -31,9 +33,11 @@ VITE_API_URL=https://api.finary.my.id/api
 2. Framework preset: `Vite`.
 3. Build command: `npm run build`.
 4. Output directory: `dist`.
-5. Tambahkan environment variable `VITE_API_URL`.
+5. Tambahkan environment variable `VITE_API_URL` ke `https://api-finary.my.id/api`.
 
-`vercel.json` sudah menambahkan SPA rewrite supaya refresh halaman tetap diarahkan ke React app.
+## Connect ke Backend
+
+Jalankan backend Laravel dari folder `finary-backend/` di port `8000`, lalu jalankan frontend ini. Vite sudah dikonfigurasi dengan proxy `/api` ke `http://127.0.0.1:8000` untuk membantu flow development lokal.
 
 ## Struktur Folder
 
