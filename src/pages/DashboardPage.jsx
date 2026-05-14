@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { currentMonth, defaultBadgeIcon, maxBadgeLevel, visualAssets } from '../constants'
+import { defaultBadgeIcon, getCurrentMonth, maxBadgeLevel, visualAssets } from '../constants'
 import { currency } from '../lib/format'
 import { buildPieSlices, getBadgeBaseIcon, getBadgeIcon, getBadgeLevel, getPieBackground } from '../lib/helpers'
 
@@ -212,13 +212,18 @@ export default function DashboardPage({
                   >
                     <div className="pocket-head">
                       <strong>{item.category}</strong>
-                      <span>{item.period || currentMonth}</span>
+                      <span>{item.period || getCurrentMonth()}</span>
                     </div>
                     <p>{currency(item.spent)} / {currency(item.monthly_limit)}</p>
                     <div className="progress-wrap">
                       <div
                         className={`progress ${item.is_overbudget ? 'danger' : ''}`}
                         style={{ width: `${Math.min(item.progress_percent || 0, 100)}%` }}
+                        role="progressbar"
+                        aria-valuenow={Math.round(item.progress_percent || 0)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${item.category} ${Math.round(item.progress_percent || 0)}% ${t('terpakai', 'used')}`}
                       />
                     </div>
                     <small>{Math.round(item.progress_percent || 0)}% {t('terpakai', 'used')}</small>
@@ -235,28 +240,38 @@ export default function DashboardPage({
                 </p>
               </div>
 
-              <div className="chart-single">
-                <div className="chart-single-row">
-                  <span>{t('Pemasukan', 'Income')}</span>
-                  <div className="progress-wrap">
-                    <div
-                      className="progress income"
-                      style={{ width: `${(monthlyIncome / monthMax) * 100}%` }}
-                    />
+                <div className="chart-single">
+                  <div className="chart-single-row">
+                    <span>{t('Pemasukan', 'Income')}</span>
+                    <div className="progress-wrap">
+                      <div
+                        className="progress income"
+                        style={{ width: `${(monthlyIncome / monthMax) * 100}%` }}
+                        role="progressbar"
+                        aria-valuenow={monthlyIncome}
+                        aria-valuemin={0}
+                        aria-valuemax={monthMax}
+                        aria-label={`${t('Pemasukan', 'Income')}: ${monthlyIncome}`}
+                      />
+                    </div>
+                    <strong>{currency(monthlyIncome)}</strong>
                   </div>
-                  <strong>{currency(monthlyIncome)}</strong>
-                </div>
-                <div className="chart-single-row">
-                  <span>{t('Pengeluaran', 'Expense')}</span>
-                  <div className="progress-wrap">
-                    <div
-                      className="progress expense"
-                      style={{ width: `${(monthlyExpense / monthMax) * 100}%` }}
-                    />
+                  <div className="chart-single-row">
+                    <span>{t('Pengeluaran', 'Expense')}</span>
+                    <div className="progress-wrap">
+                      <div
+                        className="progress expense"
+                        style={{ width: `${(monthlyExpense / monthMax) * 100}%` }}
+                        role="progressbar"
+                        aria-valuenow={monthlyExpense}
+                        aria-valuemin={0}
+                        aria-valuemax={monthMax}
+                        aria-label={`${t('Pengeluaran', 'Expense')}: ${monthlyExpense}`}
+                      />
+                    </div>
+                    <strong>{currency(monthlyExpense)}</strong>
                   </div>
-                  <strong>{currency(monthlyExpense)}</strong>
                 </div>
-              </div>
             </section>
 
             <section className="panel stack">
@@ -329,14 +344,18 @@ export default function DashboardPage({
 
                 <article className="inset leaderboard-panel">
                   <h3>{t('Leaderboard', 'Leaderboard')}</h3>
-                  <ol className="leaderboard">
-                    {leaderboard.map((item) => (
-                      <li key={`${item.name}-${item.rank}`}>
-                        <span>#{item.rank} {item.name}</span>
-                        <strong>{item.discipline_score}</strong>
-                      </li>
-                    ))}
-                  </ol>
+                  {leaderboard.length === 0 ? (
+                    <p className="helper">{t('Belum ada data leaderboard.', 'No leaderboard data yet.')}</p>
+                  ) : (
+                    <ol className="leaderboard">
+                      {leaderboard.map((item) => (
+                        <li key={`${item.name}-${item.rank}`}>
+                          <span>#{item.rank} {item.name}</span>
+                          <strong>{item.discipline_score}</strong>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
                 </article>
               </div>
             </section>

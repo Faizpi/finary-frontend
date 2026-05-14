@@ -156,6 +156,11 @@ export default function TransactionsPage({
                   <div
                     className={`progress ${item.is_overbudget ? 'danger' : ''}`}
                     style={{ width: `${Math.min(item.progress_percent, 100)}%` }}
+                    role="progressbar"
+                    aria-valuenow={Math.round(item.progress_percent || 0)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`${item.category} ${Math.round(item.progress_percent || 0)}%`}
                   />
                 </div>
               </article>
@@ -236,6 +241,13 @@ export default function TransactionsPage({
               </tr>
             </thead>
             <tbody>
+              {transactions.length === 0 && (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
+                    {t('Belum ada transaksi.', 'No transactions yet.')}
+                  </td>
+                </tr>
+              )}
               {transactions.map((item) => (
                 <tr key={item.id}>
                   <td>{compactDate(item.transaction_date)}</td>
@@ -245,8 +257,10 @@ export default function TransactionsPage({
                   <td>
                     <button
                       className="button tiny"
+                      type="button"
                       onClick={() => setTransactionToDelete(item)}
                       disabled={loading}
+                      aria-label={`${t('Hapus transaksi', 'Delete transaction')} ${item.category} ${currency(item.amount)}`}
                     >
                       {t('Hapus', 'Delete')}
                     </button>

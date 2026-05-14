@@ -90,8 +90,12 @@ export const platformDomains = [
   ['fastwork', 'fastwork.co.id'],
 ]
 
-export const today = new Date().toISOString().slice(0, 10)
-export const currentMonth = new Date().toISOString().slice(0, 7)
+export const getToday = () => new Date().toISOString().slice(0, 10)
+export const getCurrentMonth = () => new Date().toISOString().slice(0, 7)
+
+// Backward-compatible aliases — prefer the functions above for fresh values
+export const today = getToday()
+export const currentMonth = getCurrentMonth()
 
 export const visualAssets = {
   auth: haloImg,

@@ -59,6 +59,11 @@ export default function ForumPage({
             </div>
 
             <div className="forum-list">
+              {forumPosts.length === 0 && (
+                <article className="inset">
+                  <p className="helper">{t('Belum ada diskusi. Jadilah yang pertama memulai!', 'No discussions yet. Be the first to start one!')}</p>
+                </article>
+              )}
               {forumPosts.map((post) => (
                 <article key={post.id} className="forum-item">
                   <h4>{post.title}</h4>

@@ -66,7 +66,15 @@ export default function AssessmentPage({
                   <div key={k} className="prob-item">
                     <span>{k}</span>
                     <div className="progress-wrap">
-                      <div className="progress" style={{ width: `${(v * 100).toFixed(0)}%` }} />
+                      <div
+                        className="progress"
+                        style={{ width: `${(v * 100).toFixed(0)}%` }}
+                        role="progressbar"
+                        aria-valuenow={Math.round(v * 100)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${k} ${(v * 100).toFixed(0)}%`}
+                      />
                     </div>
                     <small>{(v * 100).toFixed(0)}%</small>
                   </div>
