@@ -664,7 +664,6 @@ button:disabled {
 .hero-badges span,
 .quick-metrics span,
 .pocket-head span,
-.prediction-stats span,
 .badge-level-label {
   border: 2px solid var(--line);
   border-radius: 999px;
@@ -1332,6 +1331,20 @@ textarea::placeholder {
 .prediction-stats {
   display: grid;
   gap: var(--space-xs);
+}
+
+.prediction-stats span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-weight: 600;
 }
 
 .dynamic-profile-warnings {
