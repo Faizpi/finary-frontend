@@ -28,7 +28,10 @@ export default function Navbar({
         className={`menu-toggle ${isNavOpen ? 'open' : ''}`}
         aria-expanded={isNavOpen}
         aria-label={t('Buka menu navigasi', 'Open navigation menu')}
-        onClick={() => setIsNavOpen((prev) => !prev)}
+        onClick={() => {
+          setIsNavOpen((prev) => !prev)
+          setIsUserMenuOpen(false)
+        }}
       >
         <span />
         <span />
@@ -38,6 +41,7 @@ export default function Navbar({
         {tabs.map((tab) => (
           <button
             key={tab.id}
+            type="button"
             className={`tab ${activeTab === tab.id ? 'active' : ''}`}
             onClick={() => {
               setActiveTab(tab.id)
@@ -48,6 +52,44 @@ export default function Navbar({
             {tab.label}
           </button>
         ))}
+
+        {/* Mobile-only: user actions inside the navigation panel */}
+        <div className="mobile-nav-actions">
+          <div className="mobile-nav-divider" />
+          <button
+            type="button"
+            className="button ghost tiny"
+            onClick={() => {
+              setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+              setIsNavOpen(false)
+            }}
+            aria-label={isDarkMode ? t('Aktifkan mode terang', 'Enable light mode') : t('Aktifkan mode gelap', 'Enable dark mode')}
+          >
+            {isDarkMode ? t('Mode Terang', 'Light Mode') : t('Mode Gelap', 'Dark Mode')}
+          </button>
+          <button
+            type="button"
+            className="button ghost tiny"
+            onClick={() => {
+              setLanguage((prev) => (prev === 'id' ? 'en' : 'id'))
+              setIsNavOpen(false)
+            }}
+            aria-label={t('Ganti bahasa', 'Switch language')}
+          >
+            {language === 'id' ? 'English' : 'Bahasa Indonesia'}
+          </button>
+          <button
+            type="button"
+            className="button ghost"
+            onClick={() => {
+              setIsNavOpen(false)
+              handleLogout()
+            }}
+            disabled={loading}
+          >
+            {t('Logout', 'Logout')}
+          </button>
+        </div>
       </nav>
       <div className="head-actions">
         <span className="head-greeting">{t('Halo', 'Hi')}, {user.name}</span>
@@ -95,6 +137,7 @@ export default function Navbar({
               {language === 'id' ? 'EN' : 'ID'}
             </button>
             <button
+              type="button"
               className="button ghost"
               onClick={() => {
                 setIsUserMenuOpen(false)

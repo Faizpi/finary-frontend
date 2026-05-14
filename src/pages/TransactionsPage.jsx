@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { compactDate, currency } from '../lib/format'
 
 export default function TransactionsPage({
@@ -26,6 +27,17 @@ export default function TransactionsPage({
   transactionForm,
   transactions,
 }) {
+  const [transactionToDelete, setTransactionToDelete] = useState(null)
+
+  const confirmDeleteTransaction = async () => {
+    if (!transactionToDelete) {
+      return
+    }
+
+    await handleDeleteTransaction(transactionToDelete.id)
+    setTransactionToDelete(null)
+  }
+
   return (
     <section className="panel stack">
       <div className="split-grid transactions-grid">
@@ -67,6 +79,7 @@ export default function TransactionsPage({
               min="1"
               value={transactionForm.amount}
               onChange={(e) => setTransactionForm((prev) => ({ ...prev, amount: e.target.value }))}
+              placeholder={t('Jumlah transaksi', 'Transaction amount')}
               required
             />
           </label>
@@ -86,6 +99,7 @@ export default function TransactionsPage({
             <textarea
               value={transactionForm.note}
               onChange={(e) => setTransactionForm((prev) => ({ ...prev, note: e.target.value }))}
+              placeholder={t('Keterangan tambahan jika diperlukan', 'Additional notes if needed')}
             />
           </label>
           <button className="button" disabled={loading || pocketOptions.length === 0}>
@@ -102,6 +116,7 @@ export default function TransactionsPage({
                 list="category-list"
                 value={budgetForm.category}
                 onChange={(e) => setBudgetForm((prev) => ({ ...prev, category: e.target.value }))}
+                placeholder={t('Nama kantong budget', 'Budget pocket name')}
                 required
               />
             </label>
@@ -123,6 +138,7 @@ export default function TransactionsPage({
                 onChange={(e) =>
                   setBudgetForm((prev) => ({ ...prev, monthly_limit: e.target.value }))
                 }
+                placeholder={t('Batas pengeluaran per bulan', 'Spending limit per month')}
                 required
               />
             </label>
@@ -159,6 +175,7 @@ export default function TransactionsPage({
               min="0"
               value={loanUpdateValue}
               onChange={(e) => setLoanUpdate(e.target.value)}
+              placeholder={t('Jumlah cicilan per bulan', 'Monthly installment amount')}
               required
             />
           </label>
@@ -183,6 +200,7 @@ export default function TransactionsPage({
               min="0"
               value={emergencyUpdateValue}
               onChange={(e) => setEmergencyUpdate(e.target.value)}
+              placeholder={t('Jumlah dana darurat saat ini', 'Current emergency fund amount')}
               required
             />
           </label>
@@ -227,7 +245,7 @@ export default function TransactionsPage({
                   <td>
                     <button
                       className="button tiny"
-                      onClick={() => handleDeleteTransaction(item.id)}
+                      onClick={() => setTransactionToDelete(item)}
                       disabled={loading}
                     >
                       {t('Hapus', 'Delete')}
@@ -239,6 +257,36 @@ export default function TransactionsPage({
           </table>
         </div>
       </div>
+
+      {transactionToDelete && (
+        <div className="modal-overlay" onClick={() => setTransactionToDelete(null)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h3>{t('Hapus Transaksi?', 'Delete Transaction?')}</h3>
+            <p>
+              {t('Kamu akan menghapus transaksi', 'You are about to delete a transaction of')}{' '}
+              <strong>{currency(transactionToDelete.amount)}</strong>{' '}
+              ({transactionToDelete.category}, {compactDate(transactionToDelete.transaction_date)}).
+            </p>
+            <p className="helper">{t('Aksi ini tidak bisa dibatalkan.', 'This action cannot be undone.')}</p>
+            <div className="modal-actions">
+              <button
+                className="button ghost"
+                onClick={() => setTransactionToDelete(null)}
+                disabled={loading}
+              >
+                {t('Batal', 'Cancel')}
+              </button>
+              <button
+                className="button modal-delete-btn"
+                onClick={confirmDeleteTransaction}
+                disabled={loading}
+              >
+                {loading ? t('Menghapus...', 'Deleting...') : t('Ya, Hapus', 'Yes, Delete')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

@@ -38,7 +38,7 @@ export default function HustlePage({
           </label>
           <label>{t('Waktu Luang / minggu (jam)', 'Available hours / week')}
             <input type="number" min="1" max="168" value={recommendForm.available_hours_per_week}
-              onChange={(e) => setRecommendForm((p) => ({ ...p, available_hours_per_week: e.target.value }))} />
+              onChange={(e) => setRecommendForm((p) => ({ ...p, available_hours_per_week: e.target.value }))} placeholder={t('Jam yang tersedia per minggu', 'Hours available per week')} />
           </label>
           <button className="button" disabled={mlLoading}>
             {mlLoading ? t('Mencari...', 'Searching...') : t('Cari Rekomendasi', 'Get Recommendations')}

@@ -22,6 +22,7 @@ export default function ForumPage({
                   <input
                     value={forumForm.title}
                     onChange={(e) => setForumForm((prev) => ({ ...prev, title: e.target.value }))}
+                    placeholder={t('Judul diskusi kamu', 'Title of your discussion')}
                     required
                   />
                 </label>
@@ -30,6 +31,7 @@ export default function ForumPage({
                   <textarea
                     value={forumForm.body}
                     onChange={(e) => setForumForm((prev) => ({ ...prev, body: e.target.value }))}
+                    placeholder={t('Tulis pertanyaan atau tips keuanganmu', 'Write your question or financial tips')}
                     required
                   />
                 </label>
@@ -38,6 +40,7 @@ export default function ForumPage({
                   <input
                     value={forumForm.tags}
                     onChange={(e) => setForumForm((prev) => ({ ...prev, tags: e.target.value }))}
+                    placeholder={t('Topik terkait, pisahkan dengan koma', 'Related topics, separated by commas')}
                   />
                 </label>
                 <button className="button" disabled={loading}>{t('Publikasikan', 'Publish')}</button>

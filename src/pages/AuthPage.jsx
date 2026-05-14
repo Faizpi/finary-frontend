@@ -105,18 +105,18 @@ export default function AuthPage({
 
               {authMode === 'register' && (
                 <label>{t('Nama', 'Name')}
-                  <input value={authForm.name} onChange={(e) => setAuthForm((p) => ({ ...p, name: e.target.value }))} required />
+                  <input value={authForm.name} onChange={(e) => setAuthForm((p) => ({ ...p, name: e.target.value }))} placeholder={t('Nama lengkap kamu', 'Your full name')} required />
                 </label>
               )}
               <label>{t('Email', 'Email')}
-                <input type="email" value={authForm.email} onChange={(e) => setAuthForm((p) => ({ ...p, email: e.target.value }))} required />
+                <input type="email" value={authForm.email} onChange={(e) => setAuthForm((p) => ({ ...p, email: e.target.value }))} placeholder={t('Alamat email aktif', 'Your active email address')} required />
               </label>
               <label>{t('Password', 'Password')}
-                <input type="password" value={authForm.password} onChange={(e) => setAuthForm((p) => ({ ...p, password: e.target.value }))} required />
+                <input type="password" value={authForm.password} onChange={(e) => setAuthForm((p) => ({ ...p, password: e.target.value }))} placeholder={t('Minimal 8 karakter', 'At least 8 characters')} required />
               </label>
               {authMode === 'register' && (
                 <label>{t('Konfirmasi Password', 'Confirm Password')}
-                  <input type="password" value={authForm.password_confirmation} onChange={(e) => setAuthForm((p) => ({ ...p, password_confirmation: e.target.value }))} required />
+                  <input type="password" value={authForm.password_confirmation} onChange={(e) => setAuthForm((p) => ({ ...p, password_confirmation: e.target.value }))} placeholder={t('Ketik ulang password', 'Re-enter your password')} required />
                 </label>
               )}
 

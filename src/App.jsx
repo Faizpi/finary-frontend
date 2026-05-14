@@ -11,6 +11,7 @@ import api, {
 import { categoryOptions, currentMonth, skillOptions, today } from './constants'
 import { splitCsv } from './lib/helpers'
 import Navbar from './components/layout/Navbar'
+import SkeletonPage from './components/SkeletonPage'
 import AssessmentPage from './pages/AssessmentPage'
 import AuthPage from './pages/AuthPage'
 import DashboardPage from './pages/DashboardPage'
@@ -634,17 +635,7 @@ function App() {
   }, [t])
 
   if (token && isBootstrapping) {
-    return (
-      <div className="page">
-        <section className="panel loading-panel">
-          <p className="kicker">{t('Menyiapkan akun', 'Preparing account')}</p>
-          <h2>{t('Sedang menyiapkan data akunmu.', 'Setting up your account data.')}</h2>
-          <div className="loading-track">
-            <span className="loading-bar" />
-          </div>
-        </section>
-      </div>
-    )
+    return <SkeletonPage activeTab={activeTab} />
   }
 
   if (!token || !user) {
