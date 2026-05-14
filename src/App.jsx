@@ -60,9 +60,9 @@ function App() {
 
   const [authForm, setAuthForm] = useState({
     name: '',
-    email: 'demo@finary.app',
-    password: 'password123',
-    password_confirmation: 'password123',
+    email: '',
+    password: '',
+    password_confirmation: '',
   })
 
   const [transactionForm, setTransactionForm] = useState({
@@ -83,24 +83,24 @@ function App() {
   })
 
   const [assessmentForm, setAssessmentForm] = useState({
-    monthly_income: '6000000',
-    monthly_expense: '4200000',
-    actual_savings: '1800000',
-    budget_goal: '1200000',
-    emergency_fund: '5000000',
-    loan_payment: '0',
+    monthly_income: '',
+    monthly_expense: '',
+    actual_savings: '',
+    budget_goal: '',
+    emergency_fund: '',
+    loan_payment: '',
   })
 
   const [recommendForm, setRecommendForm] = useState({
-    experience_level: 'Beginner',
-    available_hours_per_week: '10',
-    interest_category: 'App Development',
+    experience_level: '',
+    available_hours_per_week: '',
+    interest_category: '',
   })
 
   const [forumForm, setForumForm] = useState({
     title: '',
     body: '',
-    tags: 'budget,saving',
+    tags: '',
   })
   const [forumReplyForms, setForumReplyForms] = useState({})
 
