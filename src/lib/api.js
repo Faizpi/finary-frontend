@@ -1,9 +1,10 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://api-finary.my.id/api',
   headers: {
     'Content-Type': 'application/json',
+    Accept: 'application/json',
   },
 })
 
@@ -16,6 +17,26 @@ api.interceptors.request.use((config) => {
 
   return config
 })
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('finary_token')
+      window.location.replace('/')
+    }
+
+    if (error.response?.status === 422) {
+      const validationErrors = error.response.data?.errors
+      if (validationErrors) {
+        const messages = Object.values(validationErrors).flat().join(' ')
+        error.message = messages
+      }
+    }
+
+    return Promise.reject(error)
+  },
+)
 
 export const authApi = {
   register: (payload) => api.post('/auth/register', payload),
@@ -39,12 +60,15 @@ export const assessmentApi = {
 export const transactionApi = {
   list: (params = {}) => api.get('/transactions', { params }),
   create: (payload) => api.post('/transactions', payload),
+  update: (id, payload) => api.put(`/transactions/${id}`, payload),
   remove: (id) => api.delete(`/transactions/${id}`),
 }
 
 export const budgetApi = {
   list: () => api.get('/budgets'),
   create: (payload) => api.post('/budgets', payload),
+  update: (id, payload) => api.put(`/budgets/${id}`, payload),
+  remove: (id) => api.delete(`/budgets/${id}`),
 }
 
 export const recommendationApi = {
@@ -58,6 +82,11 @@ export const forumApi = {
 }
 
 export const reportApi = {
+  exportCsv: (month) =>
+    api.get('/reports/transactions/export', {
+      params: { month },
+      responseType: 'blob',
+    }),
   exportUrl: (month) => `${api.defaults.baseURL}/reports/transactions/export?month=${month}`,
 }
 

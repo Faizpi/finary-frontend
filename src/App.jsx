@@ -295,7 +295,14 @@ function App() {
       }
     } catch (err) {
       if (!err?.response) {
-        setError('Tidak bisa terhubung ke API. Jalankan Laravel di http://127.0.0.1:8000.')
+        setError('Tidak bisa terhubung ke API. Pastikan koneksi internet aktif.')
+      } else if (err.response.status === 422) {
+        const validationErrors = err.response.data?.errors
+        if (validationErrors) {
+          setError(Object.values(validationErrors).flat().join(' '))
+        } else {
+          setError(err.response.data?.message || 'Validasi gagal. Periksa input Anda.')
+        }
       } else {
         setError(err?.response?.data?.message || 'Autentikasi gagal. Coba ulangi.')
       }
@@ -327,7 +334,7 @@ function App() {
       }
     } catch (err) {
       if (!err?.response) {
-        setError('Tidak bisa terhubung ke API. Jalankan Laravel di http://127.0.0.1:8000.')
+        setError('Tidak bisa terhubung ke API. Pastikan koneksi internet aktif.')
       } else {
         setError(err?.response?.data?.message || 'Akun demo belum siap. Jalankan seed database dahulu.')
       }
@@ -364,7 +371,16 @@ function App() {
         setMessage(successMessage)
       }
     } catch (err) {
-      setError(err?.response?.data?.message || 'Proses gagal, coba lagi.')
+      if (err?.response?.status === 422) {
+        const validationErrors = err.response.data?.errors
+        if (validationErrors) {
+          setError(Object.values(validationErrors).flat().join(' '))
+        } else {
+          setError(err.response.data?.message || 'Validasi gagal. Periksa input Anda.')
+        }
+      } else {
+        setError(err?.response?.data?.message || 'Proses gagal, coba lagi.')
+      }
     } finally {
       setLoading(false)
     }
