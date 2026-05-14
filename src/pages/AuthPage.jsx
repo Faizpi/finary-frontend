@@ -93,7 +93,7 @@ export default function AuthPage({
           <div className="auth-brand-block auth-brand-image login-hero">
             <img src={visualAssets.auth} alt="Finary" className="auth-hero-img" />
             <h1>Finary</h1>
-            <p>{t('Kelola uang seperti naik level setiap hari: jelas, ringan, dan didukung AI.', 'Manage money like leveling up every day: clear, friendly, and powered by AI.')}</p>
+            <p>{t('Catat transaksi, atur budget per kantong, dan lihat kondisi keuanganmu lewat klasifikasi AI.', 'Track transactions, manage budgets by pocket, and see your financial health through AI classification.')}</p>
           </div>
 
           <div className="panel auth-form-panel">
@@ -136,32 +136,36 @@ export default function AuthPage({
         </div>
       </main>
 
-      <section className="marketing-section product-section" aria-label={t('Produk Finary', 'Finary products')}>
+      <section className="marketing-section product-section" aria-label={t('Fitur Finary', 'Finary features')}>
         <div className="section-head marketing-head">
           <div>
-            <p className="kicker">{t('Produk', 'Products')}</p>
-            <h2>{t('Semua misi uangmu dalam satu tempat', 'Every money mission in one place')}</h2>
+            <p className="kicker">{t('Fitur', 'Features')}</p>
+            <h2>{t('Empat alat untuk merapikan keuanganmu', 'Four tools to organize your finances')}</h2>
           </div>
-          <p className="helper">{t('Dashboard, budget, investasi, dan AI coaching dibuat terasa ringan seperti game harian.', 'Dashboards, budgets, investments, and AI coaching made as light as a daily game.')}</p>
+          <p className="helper">{t('Catat transaksi, atur budget per kantong, dapatkan klasifikasi AI, dan rekomendasi side hustle yang cocok dengan kondisi kamu.', 'Track transactions, manage pocket budgets, get AI classification, and side hustle recommendations that match your situation.')}</p>
         </div>
         <div className="marketing-grid">
           <article className="product-card coin">
             <span className="product-icon">Rp</span>
-            <h3>{t('Budget Quest', 'Budget Quest')}</h3>
-            <p>{t('Atur kantong, pantau batas, dan dapatkan umpan balik visual sebelum pengeluaran lewat target.', 'Set pockets, track limits, and get visual feedback before spending crosses the target.')}</p>
-            <div className="mini-progress"><span style={{ width: '72%' }} /></div>
+            <h3>{t('Budget per Kantong', 'Pocket Budgeting')}</h3>
+            <p>{t('Buat kantong per kategori, set limit bulanan, dan lihat progress pemakaian budget secara real-time.', 'Create pockets per category, set monthly limits, and see real-time budget usage progress.')}</p>
+            <div className="mini-progress" aria-hidden="true"><span style={{ width: '64%' }} /></div>
           </article>
           <article className="product-card chart">
             <span className="product-icon">AI</span>
-            <h3>{t('Insight Coach', 'Insight Coach')}</h3>
-            <p>{t('AI mengubah data transaksi menjadi saran sederhana, motivasi, dan tanda risiko yang mudah dipahami.', 'AI turns transaction data into simple guidance, motivation, and easy-to-read risk signals.')}</p>
-            <div className="reward-row"><span>Smart</span><span>+18%</span></div>
+            <h3>{t('Klasifikasi Finansial AI', 'AI Financial Classification')}</h3>
+            <p>{t('Isi assessment 6 field, AI mengklasifikasi kondisimu jadi Growth, Stable, atau Survival lengkap dengan penanda risiko.', 'Fill the 6-field assessment, AI classifies your condition as Growth, Stable, or Survival with risk flags.')}</p>
+            <div className="reward-row">
+              <span>Growth</span>
+              <span>Stable</span>
+              <span>Survival</span>
+            </div>
           </article>
           <article className="product-card badge">
             <span className="product-icon">Lv</span>
-            <h3>{t('Wealth Streak', 'Wealth Streak')}</h3>
-            <p>{t('Badge, streak, dan leaderboard menjaga kebiasaan menabung terasa menyenangkan tanpa mengurangi kredibilitas.', 'Badges, streaks, and leaderboards keep saving habits fun without losing credibility.')}</p>
-            <div className="badge-level-track">
+            <h3>{t('Badge & Leaderboard', 'Badges & Leaderboard')}</h3>
+            <p>{t('Buka badge dari konsistensi mencatat dan menabung, lalu bandingkan disiplin keuanganmu di leaderboard komunitas.', 'Unlock badges from consistent tracking and saving, then compare your financial discipline on the community leaderboard.')}</p>
+            <div className="badge-level-track" aria-hidden="true">
               <span className="badge-level-dot on" />
               <span className="badge-level-dot on" />
               <span className="badge-level-dot on" />
@@ -171,7 +175,7 @@ export default function AuthPage({
         </div>
       </section>
 
-      <section className="marketing-section social-section" aria-label={t('Testimoni dan FAQ', 'Testimonials and FAQ')}>
+      <section className="marketing-section social-section" aria-label={t('Cerita pengguna dan FAQ', 'User story and FAQ')}>
         <div className="testimonial-card">
           <p className="kicker">{t('Cerita Pengguna', 'User Story')}</p>
           <img
@@ -180,22 +184,22 @@ export default function AuthPage({
             alt={t('Ilustrasi FAQ', 'FAQ illustration')}
             loading="lazy"
           />
-          <h2>{t('Budgeting akhirnya terasa ringan.', 'Budgeting finally feels light.')}</h2>
-          <p>{t('Finary membuat target tabungan, cicilan, dan pengeluaran harian terasa jelas karena setiap aksi punya feedback langsung.', 'Finary makes savings goals, installments, and daily spending clear because every action gets instant feedback.')}</p>
-          <strong>Rani, freelancer</strong>
+          <h2>{t('Akhirnya tahu kemana uang saya pergi.', 'Finally I know where my money goes.')}</h2>
+          <p>{t('Kantong budget bikin saya lebih sadar batas pengeluaran tiap kategori, dan klasifikasi AI jadi pengingat kalau ritme keuangan mulai melenceng.', 'Pocket budgets make me aware of spending limits per category, and the AI classification reminds me when my financial rhythm starts drifting.')}</p>
+          <strong>{t('Pengguna awal Finary', 'Early Finary user')}</strong>
         </div>
         <div className="faq-list">
           <article>
-            <h3>{t('Apakah cocok untuk pemula?', 'Is it beginner friendly?')}</h3>
-            <p>{t('Ya. Alurnya dibuat bertahap dengan cue onboarding, progres, dan bahasa yang mudah dipahami.', 'Yes. The flow is gradual with onboarding cues, progress, and plain language.')}</p>
+            <h3>{t('Apa yang bisa saya lakukan di Finary?', 'What can I do in Finary?')}</h3>
+            <p>{t('Catat transaksi, buat kantong budget, isi assessment finansial, dapat rekomendasi side hustle dari AI, dan diskusi di forum.', 'Track transactions, create budget pockets, fill the financial assessment, get AI side hustle recommendations, and join forum discussions.')}</p>
           </article>
           <article>
-            <h3>{t('Apakah dark mode tersedia?', 'Is dark mode available?')}</h3>
-            <p>{t('Tersedia. Warna, kartu, dan grafik tetap kontras di mode gelap.', 'Yes. Colors, cards, and charts stay high contrast in dark mode.')}</p>
+            <h3>{t('Bagaimana cara kerja klasifikasi AI?', 'How does the AI classification work?')}</h3>
+            <p>{t('Kamu mengisi 6 field di assessment (income, expense, tabungan, target, cicilan, dana darurat). Model AI akan mengklasifikasi kondisi menjadi Growth, Stable, atau Survival.', 'You fill 6 fields in the assessment (income, expense, savings, goal, loan, emergency fund). The AI model classifies your condition as Growth, Stable, or Survival.')}</p>
           </article>
           <article>
-            <h3>{t('Apa data saya terlihat aman?', 'Will my data feel secure?')}</h3>
-            <p>{t('UI menonjolkan status, ringkasan, dan aksi penting secara jelas agar keputusan finansial tetap percaya diri.', 'The UI highlights status, summaries, and important actions clearly so financial decisions stay confident.')}</p>
+            <h3>{t('Apakah dark mode dan bahasa Inggris tersedia?', 'Are dark mode and English available?')}</h3>
+            <p>{t('Tersedia keduanya. Toggle ada di menu kanan atas, dan setting tersimpan otomatis di perangkatmu.', 'Both are available. Toggle is in the top-right menu, and the setting is automatically saved on your device.')}</p>
           </article>
         </div>
       </section>
