@@ -2,19 +2,6 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.finary.my.id"
-        }
-      ],
-      "destination": "https://finary.my.id/$1",
-      "permanent": true
-    }
-  ],
   "rewrites": [
     {
       "source": "/api/:path*",
