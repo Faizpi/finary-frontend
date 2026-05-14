@@ -569,7 +569,6 @@ button:disabled {
 .budget-item,
 .forum-item,
 .recommend-card,
-.leaderboard li,
 .marketing-section,
 .product-card,
 .testimonial-card,
@@ -1387,10 +1386,9 @@ textarea::placeholder {
 
 .leaderboard {
   display: grid;
-  gap: 6px;
+  gap: 4px;
   padding: 0;
   list-style: none;
-  counter-reset: lb-rank;
 }
 
 .leaderboard li {
@@ -1399,10 +1397,10 @@ textarea::placeholder {
   justify-content: space-between;
   gap: var(--space-xs);
   margin: 0;
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
   background: var(--surface-2, var(--surface));
-  transition: background 0.15s;
+  font-size: 0.85rem;
 }
 
 .leaderboard li:nth-child(1) {
@@ -1425,11 +1423,15 @@ textarea::placeholder {
 }
 
 .leaderboard li strong {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: var(--primary);
   background: var(--primary-bg, rgba(34, 197, 94, 0.1));
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 6px;
+}
+
+.leaderboard-panel {
+  align-content: start;
 }
 
 .hustle-hero {

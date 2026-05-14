@@ -76,7 +76,7 @@ export default function AssessmentPage({
                 <h4>{t('Penanda Risiko', 'Risk Flags')}</h4>
                 {Object.entries(mlClassifyResult.risk_flags || {}).map(([k, v]) => (
                   <span key={k} className={`risk-flag ${v ? 'flag-on' : 'flag-off'}`}>
-                    {v ? '⚠️' : '✅'} {k.replace(/_/g, ' ')}
+                    {k.replace(/_/g, ' ')}
                   </span>
                 ))}
               </div>
