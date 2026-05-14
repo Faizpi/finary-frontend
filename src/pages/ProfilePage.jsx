@@ -37,28 +37,15 @@ export default function ProfilePage({
   return (
           <section className="panel stack profile-simple">
             <div className="profile-header">
-              <div className="profile-avatar">
-                {profilePhoto ? (
-                  <img src={profilePhoto} alt={t('Foto profil', 'Profile photo')} />
-                ) : (
-                  <div className="profile-avatar-fallback">{userInitials}</div>
-                )}
-              </div>
-              <div className="profile-header-main">
-                <h2>{user.name || '-'}</h2>
-                <p>{user.email || '-'}</p>
-                {assessment?.classification !== 'stable' && (
-                  <div className="profile-status-chip">
-                    <span className={`ml-classify-badge ml-${assessment?.classification || 'unknown'}`}>
-                      {assessment ? (assessment.classification || '-').toUpperCase() : t('BELUM ASSESSMENT', 'NOT ASSESSED')}
-                    </span>
-                  </div>
-                )}
-                <div className="profile-meta-row">
-                  <span>{t('Status akun', 'Account status')}: <strong>{assessment ? t('Aktif', 'Active') : t('Belum assessment', 'Assessment pending')}</strong></span>
-                  <span>{t('Bergabung', 'Joined')}: <strong>{user.created_at ? compactDate(user.created_at) : '-'}</strong></span>
+              <div className="profile-avatar-wrap">
+                <div className="profile-avatar">
+                  {profilePhoto ? (
+                    <img src={profilePhoto} alt={t('Foto profil', 'Profile photo')} />
+                  ) : (
+                    <div className="profile-avatar-fallback">{userInitials}</div>
+                  )}
                 </div>
-                <div className="profile-actions">
+                <div className="profile-avatar-actions">
                   <label className="button ghost tiny" htmlFor="profile-photo-input">
                     {t('Ganti Foto', 'Change Photo')}
                   </label>
@@ -80,6 +67,21 @@ export default function ProfilePage({
                   )}
                 </div>
               </div>
+              <div className="profile-header-main">
+                <h2>{user.name || '-'}</h2>
+                <p>{user.email || '-'}</p>
+                {assessment?.classification !== 'stable' && (
+                  <div className="profile-status-chip">
+                    <span className={`ml-classify-badge ml-${assessment?.classification || 'unknown'}`}>
+                      {assessment ? (assessment.classification || '-').toUpperCase() : t('BELUM ASSESSMENT', 'NOT ASSESSED')}
+                    </span>
+                  </div>
+                )}
+                <div className="profile-meta-row">
+                  <span>{t('Status akun', 'Account status')}: <strong>{assessment ? t('Aktif', 'Active') : t('Belum assessment', 'Assessment pending')}</strong></span>
+                  <span>{t('Bergabung', 'Joined')}: <strong>{user.created_at ? compactDate(user.created_at) : '-'}</strong></span>
+                </div>
+              </div>
             </div>
 
             <div className="split-grid profile-grid">
@@ -95,26 +97,26 @@ export default function ProfilePage({
 
               <article className="inset profile-card simple profile-prediction-card">
                 <div className="profile-card-head">
-                  <h3>{t('Prediksi Harian AI', 'Daily AI Prediction')}</h3>
+                  <h3>{t('Estimasi Saldo Bulan Depan', 'Next Month Balance Estimate')}</h3>
                   <span className="status-pill ready">{profile?.prediction?.source || '-'}</span>
                 </div>
                 <p className="helper">
-                  {t('Otomatis dihitung sekali per hari dari data dashboard dan assessment terbaru.', 'Automatically calculated once per day from dashboard data and the latest assessment.')}
+                  {t('AI memperkirakan sisa saldo bulan depan dari pola pemasukan, pengeluaran, dan assessment terakhirmu.', 'AI estimates next month balance from your income, spending, and latest assessment patterns.')}
                 </p>
-                <strong className="predict-balance">
+                <strong className="predict-balance" aria-label={t('Estimasi saldo bulan depan', 'Estimated next month balance')}>
                   {currency(profile?.prediction?.next_month_balance || 0)}
                 </strong>
                 <div className="prediction-stats">
                   <span>
-                    {t('Risiko warning', 'Warning risk')}
+                    {t('Kemungkinan defisit', 'Deficit probability')}
                     <strong>{(((profile?.prediction?.warning_probability || 0) * 100)).toFixed(0)}%</strong>
                   </span>
                   <span>
-                    {t('Status', 'Status')}
-                    <strong>{profile?.prediction?.warning_flag ? t('Perlu perhatian', 'Needs attention') : t('Terkendali', 'Under control')}</strong>
+                    {t('Kondisi keuangan', 'Financial condition')}
+                    <strong>{profile?.prediction?.warning_flag ? t('Perlu perhatian', 'Needs attention') : t('Terkendali', 'On track')}</strong>
                   </span>
                   <span>
-                    {t('Tanggal', 'Date')}
+                    {t('Dihitung pada', 'Calculated for')}
                     <strong>{profile?.prediction?.generated_for || '-'}</strong>
                   </span>
                 </div>
