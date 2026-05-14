@@ -295,7 +295,7 @@ function App() {
       }
     } catch (err) {
       if (!err?.response) {
-        setError('Tidak bisa terhubung ke API. Pastikan koneksi internet aktif.')
+        setError(`Tidak bisa terhubung ke API: ${err?.message || 'Network error'}`)
       } else if (err.response.status === 422) {
         const validationErrors = err.response.data?.errors
         if (validationErrors) {
