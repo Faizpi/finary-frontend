@@ -11,7 +11,8 @@ import { splitCsv } from '../lib/helpers'
 
 /**
  * All form-submission handlers and side-effect actions.
- * Depends on shared loading/error/message setters and refreshAll from parent.
+ * Uses targeted refresh helpers (financial / insights / forum) instead of
+ * a blanket refreshAll to avoid wasted requests and ML hits.
  */
 export function useActions({
   assessment,
@@ -29,25 +30,33 @@ export function useActions({
   setMlClassifyResult,
   setMlLoading,
   setMlSideHustleResult,
+  setRecommendations,
   setRecommendationSource,
   setShowOnboarding,
   setTransactionForm,
   transactionForm,
   refreshAll,
+  refreshFinancial,
+  refreshInsights,
+  refreshForum,
   setLoading,
   setError,
   setMessage,
   setActiveTab,
   t,
 }) {
-  const guardedAction = useCallback(async (fn, successMessage) => {
+  /**
+   * Wraps a mutation and refreshes only the slices the caller cares about.
+   * `refreshFn` defaults to refreshFinancial — the cheapest sensible refresh.
+   */
+  const guardedAction = useCallback(async (fn, successMessage, refreshFn = refreshFinancial) => {
     setLoading(true)
     setError('')
     setMessage('')
 
     try {
       await fn()
-      await refreshAll()
+      if (refreshFn) await refreshFn()
       if (successMessage) {
         setMessage(successMessage)
       }
@@ -59,32 +68,15 @@ export function useActions({
         } else {
           setError(err.response.data?.message || 'Validasi gagal. Periksa input Anda.')
         }
+      } else if (err?.response?.status === 429) {
+        setError('Terlalu banyak request. Tunggu sebentar lalu coba lagi.')
       } else {
         setError(err?.response?.data?.message || 'Proses gagal, coba lagi.')
       }
     } finally {
       setLoading(false)
     }
-  }, [refreshAll, setLoading, setError, setMessage])
-
-  const buildAssessmentPayload = useCallback((overrides = {}) => {
-    if (!assessment) {
-      return null
-    }
-
-    const loanValue = overrides.loan_payment ?? assessment.loan_payment ?? 0
-    const emergencyValue = overrides.emergency_fund ?? assessment.emergency_fund ?? 0
-
-    return {
-      monthly_income: Number(assessment.monthly_income || 0),
-      monthly_expense: Number(assessment.monthly_expense || 0),
-      actual_savings: Number(assessment.actual_savings || 0),
-      budget_goal: Number(assessment.budget_goal || 0),
-      emergency_fund: Number(emergencyValue || 0),
-      loan_payment: Number(loanValue || 0),
-      classification: assessment.classification || 'unknown',
-    }
-  }, [assessment])
+  }, [refreshFinancial, setLoading, setError, setMessage])
 
   const handleTransactionSubmit = async (event) => {
     event.preventDefault()
@@ -125,34 +117,37 @@ export function useActions({
 
   const handleLoanUpdateSubmit = async (event) => {
     event.preventDefault()
-    const payload = buildAssessmentPayload({ loan_payment: Number(loanUpdateValue || 0) })
 
-    if (!payload) {
+    if (!assessment) {
       setError(t('Lengkapi assessment dulu sebelum memperbarui cicilan.', 'Complete the assessment before updating loan installments.'))
       setMessage('')
       return
     }
 
     await guardedAction(async () => {
-      await assessmentApi.create(payload)
+      await assessmentApi.patchLatest({ loan_payment: Number(loanUpdateValue || 0) })
       setLoanUpdate(null)
-    }, t('Cicilan hutang diperbarui.', 'Loan installment updated.'))
+    }, t('Cicilan hutang diperbarui.', 'Loan installment updated.'), async () => {
+      // After patch we need both fresh financial state and fresh insights/prediction
+      await Promise.all([refreshFinancial(), refreshInsights()])
+    })
   }
 
   const handleEmergencyUpdateSubmit = async (event) => {
     event.preventDefault()
-    const payload = buildAssessmentPayload({ emergency_fund: Number(emergencyUpdateValue || 0) })
 
-    if (!payload) {
+    if (!assessment) {
       setError(t('Lengkapi assessment dulu sebelum memperbarui dana darurat.', 'Complete the assessment before updating emergency funds.'))
       setMessage('')
       return
     }
 
     await guardedAction(async () => {
-      await assessmentApi.create(payload)
+      await assessmentApi.patchLatest({ emergency_fund: Number(emergencyUpdateValue || 0) })
       setEmergencyUpdate(null)
-    }, t('Dana darurat diperbarui.', 'Emergency fund updated.'))
+    }, t('Dana darurat diperbarui.', 'Emergency fund updated.'), async () => {
+      await Promise.all([refreshFinancial(), refreshInsights()])
+    })
   }
 
   const handleAssessmentSubmit = async (event) => {
@@ -169,6 +164,10 @@ export function useActions({
         budget_goal: Number(assessmentForm.budget_goal),
         emergency_fund: Number(assessmentForm.emergency_fund),
         loan_payment: Number(assessmentForm.loan_payment || 0),
+        skills: assessmentForm.skills || [],
+        experience_level: assessmentForm.experience_level || 'Beginner',
+        interest_category: assessmentForm.interest_category || '',
+        available_hours_per_week: Number(assessmentForm.available_hours_per_week || 10),
       })
 
       const savedAssessment = response.data.data
@@ -179,17 +178,40 @@ export function useActions({
       }
 
       setMlClassifyResult(classifyData)
+      // Assessment touches everything — full refresh is justified here once.
       await refreshAll()
-      setMessage(`Assessment tersimpan. Klasifikasi AI: ${classifyData.classification} (score: ${(classifyData.score * 100).toFixed(0)}%)`)
+      setMessage(`Assessment tersimpan. Klasifikasi AI: ${classifyData.classification}`)
 
       setShowOnboarding(false)
       setActiveTab('dashboard')
     } catch (err) {
-      setError(err?.response?.data?.message || err?.message || 'Assessment gagal, coba lagi.')
+      if (err?.response?.status === 429) {
+        setError('Terlalu banyak request ke AI. Tunggu sebentar lalu coba lagi.')
+      } else {
+        setError(err?.response?.data?.message || err?.message || 'Assessment gagal, coba lagi.')
+      }
     } finally {
       setLoading(false)
     }
   }
+
+  /**
+   * Side-hustle recommendations are now demand-driven:
+   * the side-hustle tab (or this submit handler) is the only caller.
+   */
+  const fetchInitialSideHustles = useCallback(async () => {
+    if (!assessment) return
+    try {
+      const res = await recommendationApi.sideHustles({})
+      const list = res.data.data?.recommendations || []
+      const source = res.data.data?.source || '-'
+      setMlSideHustleResult(list)
+      setRecommendations(list)
+      setRecommendationSource(source)
+    } catch {
+      // Silent — user can retry from the form
+    }
+  }, [assessment, setMlSideHustleResult, setRecommendations, setRecommendationSource])
 
   const handleRecommendationSubmit = async (event) => {
     event.preventDefault()
@@ -207,7 +229,11 @@ export function useActions({
       setRecommendationSource(res.data.data?.source || '-')
       setMessage('Rekomendasi side hustle berhasil dimuat.')
     } catch (err) {
-      setError(err?.response?.data?.message || err?.message || 'Gagal memuat rekomendasi side hustle.')
+      if (err?.response?.status === 429) {
+        setError('Terlalu banyak request ke AI. Tunggu sebentar lalu coba lagi.')
+      } else {
+        setError(err?.response?.data?.message || err?.message || 'Gagal memuat rekomendasi side hustle.')
+      }
     } finally {
       setMlLoading(false)
     }
@@ -223,7 +249,7 @@ export function useActions({
       })
 
       setForumForm({ title: '', body: '', tags: 'budget,saving' })
-    }, 'Postingan forum berhasil dipublikasikan.')
+    }, 'Postingan forum berhasil dipublikasikan.', refreshForum)
   }
 
   const handleForumReplySubmit = async (event, postId) => {
@@ -240,7 +266,7 @@ export function useActions({
     await guardedAction(async () => {
       await forumApi.reply(postId, { body })
       setForumReplyForms((prev) => ({ ...prev, [postId]: '' }))
-    }, 'Balasan forum berhasil dikirim.')
+    }, 'Balasan forum berhasil dikirim.', refreshForum)
   }
 
   const handleExportCsv = async () => {
@@ -282,5 +308,6 @@ export function useActions({
     handleForumSubmit,
     handleForumReplySubmit,
     handleExportCsv,
+    fetchInitialSideHustles,
   }
 }

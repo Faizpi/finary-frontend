@@ -7,6 +7,7 @@ export default function ProfilePage({
   assessment,
   badges,
   handleProfilePhotoChange,
+  handleRemovePhoto,
   leaderboard,
   profile,
   profilePhoto,
@@ -60,7 +61,7 @@ export default function ProfilePage({
                     <button
                       type="button"
                       className="button ghost tiny"
-                      onClick={() => setProfilePhoto('')}
+                      onClick={handleRemovePhoto}
                     >
                       {t('Hapus Foto', 'Remove Photo')}
                     </button>
@@ -108,10 +109,6 @@ export default function ProfilePage({
                 </strong>
                 <div className="prediction-stats">
                   <span>
-                    {t('Kemungkinan defisit', 'Deficit probability')}
-                    <strong>{(((profile?.prediction?.warning_probability || 0) * 100)).toFixed(0)}%</strong>
-                  </span>
-                  <span>
                     {t('Kondisi keuangan', 'Financial condition')}
                     <strong>{profile?.prediction?.warning_flag ? t('Perlu perhatian', 'Needs attention') : t('Terkendali', 'On track')}</strong>
                   </span>
@@ -120,19 +117,28 @@ export default function ProfilePage({
                     <strong>{profile?.prediction?.generated_for || '-'}</strong>
                   </span>
                 </div>
+                {profile?.prediction?.warning_text && (
+                  <p className={`prediction-warning ${profile?.prediction?.warning_flag ? 'is-warning' : ''}`}>
+                    {profile.prediction.warning_text}
+                  </p>
+                )}
+                {(profile?.prediction?.recommendations || []).length > 0 && (
+                  <ul className="prediction-recommendations">
+                    {profile.prediction.recommendations.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                )}
               </article>
 
               <article className="inset profile-card simple">
-                <h3>{t('Peringatan & Rekomendasi', 'Warnings & Recommendations')}</h3>
+                <h3>{t('Peringatan', 'Warnings')}</h3>
                 <ul className="dynamic-profile-warnings">
-                  {(profile?.warnings || []).length === 0 && (profile?.recommendations || []).length === 0 && (
+                  {(profile?.warnings || []).length === 0 && (
                     <li>{t('Tidak ada peringatan. Pertahankan ritme keuanganmu.', 'No warnings yet. Keep up the good rhythm.')}</li>
                   )}
                   {(profile?.warnings || []).map((item) => (
                     <li key={`warning-${item}`}>{item}</li>
-                  ))}
-                  {(profile?.recommendations || []).map((item) => (
-                    <li key={`rec-${item}`}>{item}</li>
                   ))}
                 </ul>
               </article>
@@ -150,7 +156,7 @@ export default function ProfilePage({
                 )}
 
                 {latestUnlockedBadges.map((badge) => {
-                  const level = getBadgeLevel(badge.key)
+                  const level = getBadgeLevel(badge)
 
                   return (
                     <article className="profile-achievement-item" key={`latest-${badge.key}`}>

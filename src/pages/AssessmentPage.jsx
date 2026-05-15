@@ -1,4 +1,5 @@
-import { visualAssets } from '../constants'
+import RupiahInput from '../components/RupiahInput'
+import { experienceLevelOptions, interestCategoryOptions, skillOptions, visualAssets } from '../constants'
 
 export default function AssessmentPage({
   assessment,
@@ -17,29 +18,75 @@ export default function AssessmentPage({
           <p className="helper">{t('6 field input — dikirim ke model AI (/classify) untuk klasifikasi otomatis.', '6 input fields — sent to the AI model (/classify) for automatic classification.')}</p>
 
           <label>{t('Pendapatan Bulanan (IDR)', 'Monthly Income (IDR)')}
-            <input type="number" min="1" value={assessmentForm.monthly_income}
-              onChange={(e) => setAssessmentForm((p) => ({ ...p, monthly_income: e.target.value }))} placeholder={t('Total pemasukan per bulan', 'Total income per month')} required />
+            <RupiahInput value={assessmentForm.monthly_income}
+              onChange={(e) => setAssessmentForm((p) => ({ ...p, monthly_income: e.target.value }))} placeholder required />
           </label>
           <label>{t('Total Pengeluaran Bulanan (IDR)', 'Total Monthly Expenses (IDR)')}
-            <input type="number" min="0" value={assessmentForm.monthly_expense}
-              onChange={(e) => setAssessmentForm((p) => ({ ...p, monthly_expense: e.target.value }))} placeholder={t('Total pengeluaran per bulan', 'Total spending per month')} required />
+            <RupiahInput value={assessmentForm.monthly_expense}
+              onChange={(e) => setAssessmentForm((p) => ({ ...p, monthly_expense: e.target.value }))} placeholder required />
           </label>
           <label>{t('Tabungan Aktual Bulan Ini (IDR)', 'Actual Savings This Month (IDR)')}
-            <input type="number" min="0" value={assessmentForm.actual_savings}
-              onChange={(e) => setAssessmentForm((p) => ({ ...p, actual_savings: e.target.value }))} placeholder={t('Jumlah yang berhasil ditabung', 'Amount you actually saved')} required />
+            <RupiahInput value={assessmentForm.actual_savings}
+              onChange={(e) => setAssessmentForm((p) => ({ ...p, actual_savings: e.target.value }))} placeholder required />
           </label>
           <label>{t('Target Tabungan / Budget Goal (IDR)', 'Savings Target / Budget Goal (IDR)')}
-            <input type="number" min="0" value={assessmentForm.budget_goal}
-              onChange={(e) => setAssessmentForm((p) => ({ ...p, budget_goal: e.target.value }))} placeholder={t('Target tabungan yang ingin dicapai', 'Your savings goal')} required />
+            <RupiahInput value={assessmentForm.budget_goal}
+              onChange={(e) => setAssessmentForm((p) => ({ ...p, budget_goal: e.target.value }))} placeholder required />
           </label>
           <label>{t('Cicilan Hutang / Bulan (IDR)', 'Loan Installment / Month (IDR)')}
-            <input type="number" min="0" value={assessmentForm.loan_payment}
-              onChange={(e) => setAssessmentForm((p) => ({ ...p, loan_payment: e.target.value }))} placeholder={t('Total cicilan bulanan, 0 jika tidak ada', 'Total monthly loan, 0 if none')} required />
+            <RupiahInput value={assessmentForm.loan_payment}
+              onChange={(e) => setAssessmentForm((p) => ({ ...p, loan_payment: e.target.value }))} placeholder required />
           </label>
           <label>{t('Dana Darurat saat ini (IDR)', 'Emergency Fund (IDR)')}
-            <input type="number" min="0" value={assessmentForm.emergency_fund}
-              onChange={(e) => setAssessmentForm((p) => ({ ...p, emergency_fund: e.target.value }))} placeholder={t('Dana cadangan yang kamu punya', 'Emergency reserve you currently have')} required />
+            <RupiahInput value={assessmentForm.emergency_fund}
+              onChange={(e) => setAssessmentForm((p) => ({ ...p, emergency_fund: e.target.value }))} placeholder required />
           </label>
+
+          <hr className="form-divider" />
+          <p className="helper form-section-label">{t('Profil Side Hustle', 'Side Hustle Profile')}</p>
+
+          <label>{t('Level Pengalaman', 'Experience Level')}
+            <select value={assessmentForm.experience_level}
+              onChange={(e) => setAssessmentForm((p) => ({ ...p, experience_level: e.target.value }))}>
+              {experienceLevelOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+            </select>
+          </label>
+          <label>{t('Kategori Minat', 'Interest Category')}
+            <select value={assessmentForm.interest_category}
+              onChange={(e) => setAssessmentForm((p) => ({ ...p, interest_category: e.target.value }))}>
+              <option value="">{t('Pilih kategori minat', 'Pick an interest category')}</option>
+              {interestCategoryOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+            </select>
+          </label>
+          <label>{t('Waktu Luang per Minggu (jam)', 'Available Hours per Week')}
+            <input type="number" min="0" max="168" value={assessmentForm.available_hours_per_week}
+              onChange={(e) => setAssessmentForm((p) => ({ ...p, available_hours_per_week: e.target.value }))}
+              placeholder={t('Jam luang yang bisa dipakai', 'Hours you can spare')} />
+          </label>
+          <fieldset className="skill-chip-group">
+            <legend>{t('Keahlian', 'Skills')}</legend>
+            <div className="skill-chip-list">
+              {skillOptions.map((skill) => {
+                const selected = (assessmentForm.skills || []).includes(skill)
+                return (
+                  <button
+                    type="button"
+                    key={skill}
+                    className={`skill-chip ${selected ? 'on' : ''}`}
+                    onClick={() => setAssessmentForm((p) => ({
+                      ...p,
+                      skills: selected
+                        ? p.skills.filter((s) => s !== skill)
+                        : [...(p.skills || []), skill],
+                    }))}
+                    aria-pressed={selected}
+                  >
+                    {skill}
+                  </button>
+                )
+              })}
+            </div>
+          </fieldset>
 
           <button className="button" disabled={loading}>
             {loading ? t('Menganalisis...', 'Analyzing...') : t('Simpan & Analisis', 'Save & Analyze')}
@@ -59,35 +106,9 @@ export default function AssessmentPage({
               <div className={`ml-classify-badge ml-${mlClassifyResult.classification}`}>
                 {mlClassifyResult.classification?.toUpperCase()}
               </div>
-              <p>{t('Kepercayaan', 'Confidence')}: <strong>{(mlClassifyResult.score * 100).toFixed(1)}%</strong></p>
-              <p className="helper">{mlClassifyResult.explanation}</p>
-              <div className="prob-row">
-                {Object.entries(mlClassifyResult.probabilities || {}).map(([k, v]) => (
-                  <div key={k} className="prob-item">
-                    <span>{k}</span>
-                    <div className="progress-wrap">
-                      <div
-                        className="progress"
-                        style={{ width: `${(v * 100).toFixed(0)}%` }}
-                        role="progressbar"
-                        aria-valuenow={Math.round(v * 100)}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-label={`${k} ${(v * 100).toFixed(0)}%`}
-                      />
-                    </div>
-                    <small>{(v * 100).toFixed(0)}%</small>
-                  </div>
-                ))}
-              </div>
-              <div className="risk-flags">
-                <h4>{t('Penanda Risiko', 'Risk Flags')}</h4>
-                {Object.entries(mlClassifyResult.risk_flags || {}).map(([k, v]) => (
-                  <span key={k} className={`risk-flag ${v ? 'flag-on' : 'flag-off'}`}>
-                    {k.replace(/_/g, ' ')}
-                  </span>
-                ))}
-              </div>
+              {mlClassifyResult.explanation && (
+                <p className="helper">{mlClassifyResult.explanation}</p>
+              )}
             </>
           ) : (
             <>

@@ -154,7 +154,7 @@ export default function AuthPage({
           <article className="product-card chart">
             <span className="product-icon">AI</span>
             <h3>{t('Klasifikasi Finansial AI', 'AI Financial Classification')}</h3>
-            <p>{t('Isi assessment 6 field, AI mengklasifikasi kondisimu jadi Growth, Stable, atau Survival lengkap dengan penanda risiko.', 'Fill the 6-field assessment, AI classifies your condition as Growth, Stable, or Survival with risk flags.')}</p>
+            <p>{t('Isi assessment 6 field keuangan dan profil side hustle, AI mengklasifikasi kondisimu jadi Growth, Stable, atau Survival.', 'Fill the financial assessment and side hustle profile, AI classifies your condition as Growth, Stable, or Survival.')}</p>
             <div className="reward-row">
               <span>Growth</span>
               <span>Stable</span>

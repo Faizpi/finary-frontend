@@ -22,6 +22,7 @@ export default function DashboardPage({
   const monthlySavings = Number(assessment?.actual_savings || 0)
   const savingsTarget = Number(assessment?.budget_goal || 0)
   const monthMax = Math.max(monthlyIncome, monthlyExpense, 1)
+  const currentMonth = getCurrentMonth()
 
   const expenseSlices = useMemo(
     () => buildPieSlices(budgets.map((item) => ({
@@ -34,7 +35,7 @@ export default function DashboardPage({
   const incomeSlices = useMemo(() => {
     const incomeMap = new Map()
     transactions
-      .filter((item) => item.type === 'income')
+      .filter((item) => item.type === 'income' && String(item.transaction_date || '').slice(0, 7) === currentMonth)
       .forEach((item) => {
         const key = item.category || t('Lainnya', 'Other')
         const nextValue = (incomeMap.get(key) || 0) + Number(item.amount || 0)
@@ -53,15 +54,13 @@ export default function DashboardPage({
   const incomePieBackground = useMemo(() => getPieBackground(incomeSlices), [incomeSlices])
 
   const achievementLevel = useMemo(() => {
-    const unlocked = badges?.summary?.unlocked_count || 0
-    const total = badges?.summary?.total_badges || 0
+    const badgeList = badges?.badges || []
+    if (badgeList.length === 0) return 0
 
-    if (total <= 0) {
-      return 1
-    }
-
-    const scaled = Math.ceil((unlocked / total) * maxBadgeLevel)
-    return Math.max(1, Math.min(maxBadgeLevel, scaled))
+    const totalLevel = badgeList.reduce((sum, b) => sum + (b.level || 0), 0)
+    const max = badges?.summary?.max_level || maxBadgeLevel
+    const avg = totalLevel / badgeList.length
+    return Math.max(0, Math.min(max, Math.round(avg)))
   }, [badges])
 
   const metricSlides = useMemo(
@@ -286,57 +285,78 @@ export default function DashboardPage({
                   </p>
                   <div className="badge-grid">
                     {(badges?.badges || []).map((badge) => {
-                      const level = getBadgeLevel(badge.key)
+                      const level = getBadgeLevel(badge)
 
                       return (
                         <div
-                          key={badge.key}
-                          className={`badge-chip level-${level} ${badge.unlocked ? 'on' : 'locked'}`}
-                        >
-                          <div className="badge-head">
-                            <div className="badge-photo-wrap" aria-hidden="true">
-                              <img
-                                className="badge-photo"
-                                src={getBadgeIcon(badge.key, level)}
-                                data-base-src={getBadgeBaseIcon(badge.key)}
-                                data-fallback-stage="level"
-                                alt={`${badge.name} level ${level}`}
-                                loading="lazy"
-                                onError={(event) => {
-                                  const stage = event.currentTarget.dataset.fallbackStage || 'level'
-                                  if (stage === 'level') {
-                                    event.currentTarget.dataset.fallbackStage = 'base'
-                                    event.currentTarget.src = event.currentTarget.dataset.baseSrc || defaultBadgeIcon
-                                    return
-                                  }
+                            key={badge.key}
+                            className={`badge-chip level-${level} ${badge.unlocked ? 'on' : 'locked'}`}
+                          >
+                            <div className="badge-head">
+                              <div className="badge-photo-wrap" aria-hidden="true">
+                                {level === 0 ? (
+                                  <img
+                                    className="badge-photo"
+                                    src={defaultBadgeIcon}
+                                    alt={`${badge.name} terkunci`}
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <img
+                                    className="badge-photo"
+                                    src={getBadgeIcon(badge.key, level)}
+                                    data-base-src={getBadgeBaseIcon(badge.key)}
+                                    data-fallback-stage="level"
+                                    alt={`${badge.name} level ${level}`}
+                                    loading="lazy"
+                                    onError={(event) => {
+                                      const stage = event.currentTarget.dataset.fallbackStage || 'level'
+                                      if (stage === 'level') {
+                                        event.currentTarget.dataset.fallbackStage = 'base'
+                                        event.currentTarget.src = event.currentTarget.dataset.baseSrc || defaultBadgeIcon
+                                        return
+                                      }
 
-                                  event.currentTarget.onerror = null
-                                  event.currentTarget.src = defaultBadgeIcon
-                                }}
-                              />
+                                      event.currentTarget.onerror = null
+                                      event.currentTarget.src = defaultBadgeIcon
+                                    }}
+                                  />
+                                )}
+                              </div>
+                              <div className="badge-copy">
+                                <strong>{badge.name}</strong>
+                                <small>{badge.description}</small>
+                              </div>
                             </div>
-                            <div className="badge-copy">
-                              <strong>{badge.name}</strong>
-                              <small>{badge.description}</small>
+
+                            <div className="badge-level-row" aria-label={badge.unlocked ? `Level ${level} dari ${maxBadgeLevel}` : 'Terkunci'}>
+                              <span className="badge-level-label">{badge.unlocked ? `Lv ${level}` : 'Lv 0'}</span>
+                              {badge.unlocked && (
+                                <div className="badge-level-track">
+                                  {Array.from({ length: maxBadgeLevel }, (_, index) => (
+                                    <span
+                                      key={`${badge.key}-level-${index + 1}`}
+                                      className={`badge-level-dot ${index + 1 <= level ? 'on' : 'off'}`}
+                                    />
+                                  ))}
+                                </div>
+                              )}
                             </div>
+
+                            <span className={`badge-state ${badge.unlocked ? 'on' : 'off'}`}>
+                              {badge.unlocked ? t('Terbuka', 'Unlocked') : t('Terkunci', 'Locked')}
+                            </span>
+                            {badge.next_target !== null && badge.next_target !== undefined && (
+                              <small className="badge-next-target">
+                                {t('Progress', 'Progress')}: {badge.progress ?? 0} / {badge.next_target}
+                              </small>
+                            )}
+                            {badge.next_target === null && badge.unlocked && (
+                              <small className="badge-next-target maxed">
+                                {t('Level maksimal tercapai', 'Max level reached')}
+                              </small>
+                            )}
                           </div>
-
-                          <div className="badge-level-row" aria-label={`Level ${level} dari ${maxBadgeLevel}`}>
-                            <span className="badge-level-label">Lv {level}</span>
-                            <div className="badge-level-track">
-                              {Array.from({ length: maxBadgeLevel }, (_, index) => (
-                                <span
-                                  key={`${badge.key}-level-${index + 1}`}
-                                  className={`badge-level-dot ${index + 1 <= level ? 'on' : 'off'}`}
-                                />
-                              ))}
-                            </div>
-                          </div>
-
-                          <span className={`badge-state ${badge.unlocked ? 'on' : 'off'}`}>
-                            {badge.unlocked ? t('Terbuka', 'Unlocked') : t('Terkunci', 'Locked')}
-                          </span>
-                        </div>
                       )
                     })}
                   </div>
@@ -350,7 +370,14 @@ export default function DashboardPage({
                     <ol className="leaderboard">
                       {leaderboard.map((item) => (
                         <li key={`${item.name}-${item.rank}`}>
-                          <span>#{item.rank} {item.name}</span>
+                          <span className="leaderboard-user">
+                            {item.avatar ? (
+                              <img className="leaderboard-avatar" src={item.avatar} alt="" loading="lazy" />
+                            ) : (
+                              <span className="leaderboard-avatar-fallback">{(item.name || '?')[0].toUpperCase()}</span>
+                            )}
+                            #{item.rank} {item.name}
+                          </span>
                           <strong>{item.discipline_score}</strong>
                         </li>
                       ))}

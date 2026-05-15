@@ -5,13 +5,16 @@ import {
   budgetApi,
   dashboardApi,
   forumApi,
-  recommendationApi,
   transactionApi,
 } from '../lib/api'
 
 /**
- * Manages all server-fetched data state and the refreshAll function.
- * Keeps data concerns separate from auth and action logic.
+ * Manages all server-fetched data state.
+ *
+ * refreshAll   — full bootstrap (login, page reload)
+ * refreshFinancial — after transaction/budget/assessment changes
+ * refreshInsights  — after assessment changes or when insights tab opens
+ * refreshForum     — after forum post/reply
  */
 export function useAppData() {
   const [user, setUser] = useState(null)
@@ -20,6 +23,7 @@ export function useAppData() {
   const [badges, setBadges] = useState(null)
   const [leaderboard, setLeaderboard] = useState([])
   const [transactions, setTransactions] = useState([])
+  const [transactionsMeta, setTransactionsMeta] = useState(null)
   const [budgets, setBudgets] = useState([])
   const [assessment, setAssessment] = useState(null)
   const [recommendations, setRecommendations] = useState([])
@@ -33,12 +37,14 @@ export function useAppData() {
     setBadges(null)
     setLeaderboard([])
     setTransactions([])
+    setTransactionsMeta(null)
     setBudgets([])
     setAssessment(null)
     setRecommendations([])
     setForumPosts([])
   }, [])
 
+  // Full refresh — used on bootstrap and after assessment submit
   const refreshAll = useCallback(async () => {
     const [
       meRes,
@@ -49,7 +55,6 @@ export function useAppData() {
       transactionRes,
       budgetRes,
       assessmentRes,
-      recommendationRes,
       forumRes,
     ] = await Promise.all([
       authApi.me(),
@@ -57,10 +62,9 @@ export function useAppData() {
       dashboardApi.getProfile(),
       dashboardApi.getBadges(),
       dashboardApi.getLeaderboard(),
-      transactionApi.list(),
+      transactionApi.list({ per_page: 30, page: 1 }),
       budgetApi.list(),
       assessmentApi.getLatest(),
-      recommendationApi.sideHustles(),
       forumApi.list(),
     ])
 
@@ -72,13 +76,54 @@ export function useAppData() {
     setBadges(badgesRes.data.data)
     setLeaderboard(leaderboardRes.data.data || [])
     setTransactions(transactionRes.data.data || [])
+    setTransactionsMeta(transactionRes.data.meta || null)
     setBudgets(budgetRes.data.data || [])
     setAssessment(latestAssessment)
-    setRecommendations(recommendationRes.data.data?.recommendations || [])
-    setRecommendationSource(recommendationRes.data.data?.source || '-')
     setForumPosts(forumRes.data.data || [])
 
     return { latestAssessment }
+  }, [])
+
+  // Lightweight refresh after transaction/budget CRUD — includes assessment for metric slides
+  const refreshFinancial = useCallback(async () => {
+    const [dashboardRes, transactionRes, budgetRes, assessmentRes] = await Promise.all([
+      dashboardApi.getDashboard(),
+      transactionApi.list({ per_page: 30, page: 1 }),
+      budgetApi.list(),
+      assessmentApi.getLatest(),
+    ])
+
+    setDashboard(dashboardRes.data.data)
+    setTransactions(transactionRes.data.data || [])
+    setTransactionsMeta(transactionRes.data.meta || null)
+    setBudgets(budgetRes.data.data || [])
+    setAssessment(assessmentRes.data.data)
+  }, [])
+
+  // Refresh insights — called when profile/badges/leaderboard tab opens or after assessment
+  const refreshInsights = useCallback(async () => {
+    const [profileRes, badgesRes, leaderboardRes] = await Promise.all([
+      dashboardApi.getProfile(),
+      dashboardApi.getBadges(),
+      dashboardApi.getLeaderboard(),
+    ])
+
+    setProfile(profileRes.data.data)
+    setBadges(badgesRes.data.data)
+    setLeaderboard(leaderboardRes.data.data || [])
+  }, [])
+
+  // Load more transactions (pagination)
+  const loadMoreTransactions = useCallback(async (page) => {
+    const res = await transactionApi.list({ per_page: 30, page })
+    setTransactions((prev) => [...prev, ...(res.data.data || [])])
+    setTransactionsMeta(res.data.meta || null)
+  }, [])
+
+  // Refresh forum only
+  const refreshForum = useCallback(async () => {
+    const res = await forumApi.list()
+    setForumPosts(res.data.data || [])
   }, [])
 
   return {
@@ -88,12 +133,17 @@ export function useAppData() {
     badges,
     leaderboard,
     transactions,
+    transactionsMeta,
     budgets,
-    assessment,
-    recommendations,
+    assessment, setAssessment,
+    recommendations, setRecommendations,
     recommendationSource, setRecommendationSource,
     forumPosts,
     clearData,
     refreshAll,
+    refreshFinancial,
+    refreshInsights,
+    refreshForum,
+    loadMoreTransactions,
   }
 }

@@ -3,6 +3,8 @@ import { categoryOptions, getCurrentMonth, getToday, skillOptions } from './cons
 import { useAppData } from './hooks/useAppData'
 import { useAuth } from './hooks/useAuth'
 import { useActions } from './hooks/useActions'
+import { authApi } from './lib/api'
+import ErrorBoundary from './components/ErrorBoundary'
 import Navbar from './components/layout/Navbar'
 import SkeletonPage from './components/SkeletonPage'
 import AssessmentPage from './pages/AssessmentPage'
@@ -25,7 +27,7 @@ function App() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [isBalanceVisible, setIsBalanceVisible] = useState(false)
-  const [profilePhoto, setProfilePhoto] = useState(() => localStorage.getItem('finary_profile_photo') || '')
+  const [profilePhoto, setProfilePhoto] = useState('')
 
   // ML state
   const [mlClassifyResult, setMlClassifyResult] = useState(null)
@@ -54,6 +56,10 @@ function App() {
     budget_goal: '',
     emergency_fund: '',
     loan_payment: '',
+    skills: [],
+    experience_level: 'Beginner',
+    interest_category: '',
+    available_hours_per_week: '',
   })
   const [recommendForm, setRecommendForm] = useState({
     experience_level: '',
@@ -88,6 +94,7 @@ function App() {
     badges,
     leaderboard,
     transactions,
+    transactionsMeta,
     budgets,
     assessment,
     recommendations,
@@ -95,6 +102,10 @@ function App() {
     forumPosts,
     clearData,
     refreshAll,
+    refreshFinancial,
+    refreshInsights,
+    refreshForum,
+    loadMoreTransactions,
   } = appData
 
   // Auth hook
@@ -153,11 +164,15 @@ function App() {
     setMlClassifyResult,
     setMlLoading,
     setMlSideHustleResult,
+    setRecommendations: appData.setRecommendations,
     setRecommendationSource: appData.setRecommendationSource,
     setShowOnboarding,
     setTransactionForm,
     transactionForm,
     refreshAll,
+    refreshFinancial,
+    refreshInsights,
+    refreshForum,
     setLoading,
     setError,
     setMessage,
@@ -170,29 +185,91 @@ function App() {
     localStorage.setItem('finary_lang', language)
   }, [language])
 
+  // Auto-dismiss success messages after 4 seconds
+  useEffect(() => {
+    if (!message) return
+    const timer = setTimeout(() => setMessage(''), 4000)
+    return () => clearTimeout(timer)
+  }, [message])
+
   useEffect(() => {
     localStorage.setItem('finary_theme', theme)
     document.documentElement.dataset.theme = theme
   }, [theme])
 
   useEffect(() => {
-    if (profilePhoto) {
-      localStorage.setItem('finary_profile_photo', profilePhoto)
-      return
+    if (!assessment) return
+
+    const sideHustleContext = assessment.metadata?.side_hustle_context || {}
+    setAssessmentForm((prev) => ({
+      ...prev,
+      monthly_income: String(assessment.monthly_income ?? ''),
+      monthly_expense: String(assessment.monthly_expense ?? ''),
+      actual_savings: String(assessment.actual_savings ?? ''),
+      budget_goal: String(assessment.budget_goal ?? ''),
+      emergency_fund: String(assessment.emergency_fund ?? ''),
+      loan_payment: String(assessment.loan_payment ?? ''),
+      skills: assessment.skills ?? sideHustleContext.skills ?? [],
+      experience_level: sideHustleContext.experience_level ?? 'Beginner',
+      interest_category: sideHustleContext.interest_category ?? '',
+      available_hours_per_week: String(assessment.available_hours_per_week ?? sideHustleContext.available_hours_per_week ?? ''),
+    }))
+  }, [assessment])
+
+  // Sync profile photo from server user data
+  useEffect(() => {
+    if (user?.avatar) {
+      setProfilePhoto(user.avatar)
+    } else {
+      setProfilePhoto('')
     }
-    localStorage.removeItem('finary_profile_photo')
-  }, [profilePhoto])
+  }, [user])
 
   const handleProfilePhotoChange = (event) => {
     const file = event.target.files?.[0]
     if (!file) return
 
-    const reader = new FileReader()
-    reader.onload = () => {
-      const result = typeof reader.result === 'string' ? reader.result : ''
-      if (result) setProfilePhoto(result)
+    const img = new Image()
+    img.onload = async () => {
+      const maxSize = 200
+      const canvas = document.createElement('canvas')
+      let w = img.width
+      let h = img.height
+
+      if (w > maxSize || h > maxSize) {
+        if (w > h) {
+          h = Math.round((h * maxSize) / w)
+          w = maxSize
+        } else {
+          w = Math.round((w * maxSize) / h)
+          h = maxSize
+        }
+      }
+
+      canvas.width = w
+      canvas.height = h
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0, w, h)
+      const resized = canvas.toDataURL('image/jpeg', 0.8)
+
+      setProfilePhoto(resized)
+
+      try {
+        await authApi.updateAvatar({ avatar: resized })
+      } catch {
+        // Avatar saved locally even if server fails
+      }
     }
-    reader.readAsDataURL(file)
+    img.src = URL.createObjectURL(file)
+  }
+
+  const handleRemovePhoto = async () => {
+    setProfilePhoto('')
+    try {
+      await authApi.updateAvatar({ avatar: '' })
+    } catch {
+      // Ignore
+    }
   }
 
   const formatTransactionType = useCallback((type) => {
@@ -200,6 +277,20 @@ function App() {
     if (type === 'expense') return t('Pengeluaran', 'Expense')
     return type
   }, [t])
+
+  // Refresh insights when user opens profile/dashboard tabs
+  useEffect(() => {
+    if ((activeTab === 'profile') && user) {
+      refreshInsights()
+    }
+  }, [activeTab, user]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load side-hustle recommendations on demand when the tab opens (if not yet loaded)
+  useEffect(() => {
+    if (activeTab === 'hustle' && assessment && recommendations.length === 0) {
+      actions.fetchInitialSideHustles()
+    }
+  }, [activeTab, assessment]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Render gates
   if (token && isBootstrapping) {
@@ -252,6 +343,7 @@ function App() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="page">
       <datalist id="category-list">
         {categoryOptions.map((item) => (
@@ -341,6 +433,7 @@ function App() {
             assessment={assessment}
             badges={badges}
             handleProfilePhotoChange={handleProfilePhotoChange}
+            handleRemovePhoto={handleRemovePhoto}
             leaderboard={leaderboard}
             profile={profile}
             profilePhoto={profilePhoto}
@@ -365,6 +458,7 @@ function App() {
             handleLoanUpdateSubmit={actions.handleLoanUpdateSubmit}
             handleTransactionSubmit={actions.handleTransactionSubmit}
             loading={loading}
+            loadMoreTransactions={loadMoreTransactions}
             loanPayment={loanPayment}
             loanUpdateValue={loanUpdateValue}
             pocketOptions={pocketOptions}
@@ -376,6 +470,7 @@ function App() {
             t={t}
             transactionForm={transactionForm}
             transactions={transactions}
+            transactionsMeta={transactionsMeta}
           />
         )}
 
@@ -423,6 +518,7 @@ function App() {
         by Tim Capstone CC26-PSU008
       </footer>
     </div>
+    </ErrorBoundary>
   )
 }
 

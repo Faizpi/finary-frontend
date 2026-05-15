@@ -17,7 +17,20 @@ export const clampBadgeLevel = (value) => {
 
 export const getBadgeIcon = (key, level) => `/badges/${key}/level-${clampBadgeLevel(level)}.png`
 export const getBadgeBaseIcon = (key) => `/badges/${key}.png`
-export const getBadgeLevel = (key) => badgeLevelByKey[key] || 1
+
+/**
+ * Returns the display level for a badge chip.
+ * - locked badges (unlocked=false) → 0
+ * - unlocked badges → level from badgeLevelByKey (default 1)
+ */
+export const getBadgeLevel = (badgeOrKey, unlocked = true) => {
+  if (typeof badgeOrKey === 'object' && badgeOrKey !== null) {
+    return badgeOrKey.unlocked ? Number(badgeOrKey.level || 1) : 0
+  }
+
+  if (!unlocked) return 0
+  return badgeLevelByKey[badgeOrKey] || 1
+}
 
 export const getPlatformDomain = (platform = '') => {
   const normalized = platform.toLowerCase()

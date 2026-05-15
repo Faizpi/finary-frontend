@@ -51,13 +51,13 @@ export const interestCategoryOptions = [
 ]
 
 export const badgeLevelByKey = {
-  first_saver: 6,
-  expense_tracker: 2,
-  budget_keeper: 3,
-  daily_logger: 4,
-  side_hustler: 5,
-  saving_streak: 6,
-  comeback: 6,
+  first_saver: 1,
+  expense_tracker: 1,
+  budget_keeper: 1,
+  daily_logger: 1,
+  side_hustler: 1,
+  saving_streak: 1,
+  comeback: 1,
 }
 
 export const maxBadgeLevel = 6

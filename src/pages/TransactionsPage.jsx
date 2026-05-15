@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import RupiahInput from '../components/RupiahInput'
 import { compactDate, currency } from '../lib/format'
 
 export default function TransactionsPage({
@@ -15,6 +16,7 @@ export default function TransactionsPage({
   handleLoanUpdateSubmit,
   handleTransactionSubmit,
   loading,
+  loadMoreTransactions,
   loanPayment,
   loanUpdateValue,
   pocketOptions,
@@ -26,6 +28,7 @@ export default function TransactionsPage({
   t,
   transactionForm,
   transactions,
+  transactionsMeta,
 }) {
   const [transactionToDelete, setTransactionToDelete] = useState(null)
 
@@ -74,12 +77,10 @@ export default function TransactionsPage({
           )}
           <label>
             {t('Nominal', 'Amount')}
-            <input
-              type="number"
-              min="1"
+            <RupiahInput
               value={transactionForm.amount}
               onChange={(e) => setTransactionForm((prev) => ({ ...prev, amount: e.target.value }))}
-              placeholder={t('Jumlah transaksi', 'Transaction amount')}
+              placeholder
               required
             />
           </label>
@@ -131,14 +132,12 @@ export default function TransactionsPage({
             </label>
             <label>
               {t('Limit Bulanan', 'Monthly Limit')}
-              <input
-                type="number"
-                min="1"
+              <RupiahInput
                 value={budgetForm.monthly_limit}
                 onChange={(e) =>
                   setBudgetForm((prev) => ({ ...prev, monthly_limit: e.target.value }))
                 }
-                placeholder={t('Batas pengeluaran per bulan', 'Spending limit per month')}
+                placeholder
                 required
               />
             </label>
@@ -175,12 +174,10 @@ export default function TransactionsPage({
           <p className="helper">{t('Perbarui cicilan bulanan dari assessment.', 'Update monthly installments from your assessment.')}</p>
           <label>
             {t('Nominal', 'Amount')}
-            <input
-              type="number"
-              min="0"
+            <RupiahInput
               value={loanUpdateValue}
               onChange={(e) => setLoanUpdate(e.target.value)}
-              placeholder={t('Jumlah cicilan per bulan', 'Monthly installment amount')}
+              placeholder
               required
             />
           </label>
@@ -200,12 +197,10 @@ export default function TransactionsPage({
           <p className="helper">{t('Perbarui dana darurat terbaru dari assessment.', 'Update your latest emergency fund value.')}</p>
           <label>
             {t('Nominal', 'Amount')}
-            <input
-              type="number"
-              min="0"
+            <RupiahInput
               value={emergencyUpdateValue}
               onChange={(e) => setEmergencyUpdate(e.target.value)}
-              placeholder={t('Jumlah dana darurat saat ini', 'Current emergency fund amount')}
+              placeholder
               required
             />
           </label>
@@ -271,6 +266,22 @@ export default function TransactionsPage({
           </table>
         </div>
       </div>
+
+      {transactionsMeta?.has_more && (
+        <div className="load-more-wrap">
+          <button
+            className="button ghost"
+            type="button"
+            onClick={() => loadMoreTransactions(transactionsMeta.current_page + 1)}
+            disabled={loading}
+          >
+            {t('Muat Lebih Banyak', 'Load More')}
+          </button>
+          <small className="helper">
+            {transactions.length} / {transactionsMeta.total} {t('transaksi', 'transactions')}
+          </small>
+        </div>
+      )}
 
       {transactionToDelete && (
         <div className="modal-overlay" onClick={() => setTransactionToDelete(null)}>

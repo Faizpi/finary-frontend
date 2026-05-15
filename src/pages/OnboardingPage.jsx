@@ -1,4 +1,5 @@
-import { visualAssets } from '../constants'
+import RupiahInput from '../components/RupiahInput'
+import { experienceLevelOptions, interestCategoryOptions, skillOptions, visualAssets } from '../constants'
 
 export default function OnboardingPage({
   assessmentForm,
@@ -85,29 +86,77 @@ export default function OnboardingPage({
                 <p>{t('6 field — sesuai dengan input model AI /classify.', '6 fields — aligned with the AI model inputs /classify.')}</p>
               </div>
               <label>{t('Pendapatan Bulanan (IDR)', 'Monthly Income (IDR)')}
-                <input type="number" min="1" value={assessmentForm.monthly_income}
-                  onChange={(e) => setAssessmentForm((p) => ({ ...p, monthly_income: e.target.value }))} placeholder={t('Total pemasukan per bulan', 'Total income per month')} required />
+                <RupiahInput value={assessmentForm.monthly_income}
+                  onChange={(e) => setAssessmentForm((p) => ({ ...p, monthly_income: e.target.value }))} placeholder required />
               </label>
               <label>{t('Total Pengeluaran Bulanan (IDR)', 'Total Monthly Expenses (IDR)')}
-                <input type="number" min="0" value={assessmentForm.monthly_expense}
-                  onChange={(e) => setAssessmentForm((p) => ({ ...p, monthly_expense: e.target.value }))} placeholder={t('Total pengeluaran per bulan', 'Total spending per month')} required />
+                <RupiahInput value={assessmentForm.monthly_expense}
+                  onChange={(e) => setAssessmentForm((p) => ({ ...p, monthly_expense: e.target.value }))} placeholder required />
               </label>
               <label>{t('Tabungan Aktual Bulan Ini (IDR)', 'Actual Savings This Month (IDR)')}
-                <input type="number" min="0" value={assessmentForm.actual_savings}
-                  onChange={(e) => setAssessmentForm((p) => ({ ...p, actual_savings: e.target.value }))} placeholder={t('Jumlah yang berhasil ditabung', 'Amount you actually saved')} required />
+                <RupiahInput value={assessmentForm.actual_savings}
+                  onChange={(e) => setAssessmentForm((p) => ({ ...p, actual_savings: e.target.value }))} placeholder required />
               </label>
               <label>{t('Target Tabungan / Budget Goal (IDR)', 'Savings Target / Budget Goal (IDR)')}
-                <input type="number" min="0" value={assessmentForm.budget_goal}
-                  onChange={(e) => setAssessmentForm((p) => ({ ...p, budget_goal: e.target.value }))} placeholder={t('Target tabungan yang ingin dicapai', 'Your savings goal')} required />
+                <RupiahInput value={assessmentForm.budget_goal}
+                  onChange={(e) => setAssessmentForm((p) => ({ ...p, budget_goal: e.target.value }))} placeholder required />
               </label>
               <label>{t('Cicilan Hutang / Bulan (IDR)', 'Loan Installment / Month (IDR)')}
-                <input type="number" min="0" value={assessmentForm.loan_payment}
-                  onChange={(e) => setAssessmentForm((p) => ({ ...p, loan_payment: e.target.value }))} placeholder={t('Total cicilan bulanan, 0 jika tidak ada', 'Total monthly loan, 0 if none')} required />
+                <RupiahInput value={assessmentForm.loan_payment}
+                  onChange={(e) => setAssessmentForm((p) => ({ ...p, loan_payment: e.target.value }))} placeholder required />
               </label>
               <label>{t('Dana Darurat saat ini (IDR)', 'Emergency Fund (IDR)')}
-                <input type="number" min="0" value={assessmentForm.emergency_fund}
-                  onChange={(e) => setAssessmentForm((p) => ({ ...p, emergency_fund: e.target.value }))} placeholder={t('Dana cadangan yang kamu punya', 'Emergency reserve you currently have')} required />
+                <RupiahInput value={assessmentForm.emergency_fund}
+                  onChange={(e) => setAssessmentForm((p) => ({ ...p, emergency_fund: e.target.value }))} placeholder required />
               </label>
+
+              <div className="auth-card-head">
+                <h2>{t('Profil Side Hustle', 'Side Hustle Profile')}</h2>
+                <p>{t('Biar rekomendasi side hustle langsung pas dengan kamu sejak awal.', 'So side hustle recommendations match you right from the start.')}</p>
+              </div>
+              <label>{t('Level Pengalaman', 'Experience Level')}
+                <select value={assessmentForm.experience_level}
+                  onChange={(e) => setAssessmentForm((p) => ({ ...p, experience_level: e.target.value }))}>
+                  {experienceLevelOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+              </label>
+              <label>{t('Kategori Minat', 'Interest Category')}
+                <select value={assessmentForm.interest_category}
+                  onChange={(e) => setAssessmentForm((p) => ({ ...p, interest_category: e.target.value }))}
+                  required>
+                  <option value="">{t('Pilih kategori minat', 'Pick an interest category')}</option>
+                  {interestCategoryOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+              </label>
+              <label>{t('Waktu Luang per Minggu (jam)', 'Available Hours per Week')}
+                <input type="number" min="0" max="168" value={assessmentForm.available_hours_per_week}
+                  onChange={(e) => setAssessmentForm((p) => ({ ...p, available_hours_per_week: e.target.value }))}
+                  placeholder={t('Jam luang yang bisa dipakai', 'Hours you can spare')} required />
+              </label>
+              <fieldset className="skill-chip-group">
+                <legend>{t('Keahlian (pilih satu atau lebih)', 'Skills (pick one or more)')}</legend>
+                <div className="skill-chip-list">
+                  {skillOptions.map((skill) => {
+                    const selected = (assessmentForm.skills || []).includes(skill)
+                    return (
+                      <button
+                        type="button"
+                        key={skill}
+                        className={`skill-chip ${selected ? 'on' : ''}`}
+                        onClick={() => setAssessmentForm((p) => ({
+                          ...p,
+                          skills: selected
+                            ? p.skills.filter((s) => s !== skill)
+                            : [...(p.skills || []), skill],
+                        }))}
+                        aria-pressed={selected}
+                      >
+                        {skill}
+                      </button>
+                    )
+                  })}
+                </div>
+              </fieldset>
               {error && <div className="alert error"><span>{error}</span><button type="button" className="alert-close" onClick={() => setError('')}>x</button></div>}
               <div className="auth-actions">
                 <button className="button" disabled={loading}>

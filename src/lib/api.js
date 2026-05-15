@@ -2,6 +2,7 @@ import axios from 'axios'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://api-finary.my.id/api',
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -43,6 +44,7 @@ export const authApi = {
   login: (payload) => api.post('/auth/login', payload),
   me: () => api.get('/auth/me'),
   logout: () => api.post('/auth/logout'),
+  updateAvatar: (payload) => api.post('/auth/avatar', payload),
 }
 
 export const dashboardApi = {
@@ -55,6 +57,7 @@ export const dashboardApi = {
 export const assessmentApi = {
   getLatest: () => api.get('/assessment/latest'),
   create: (payload) => api.post('/assessment', payload),
+  patchLatest: (payload) => api.patch('/assessment/latest', payload),
 }
 
 export const transactionApi = {
