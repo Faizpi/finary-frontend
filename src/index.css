@@ -762,11 +762,6 @@ button:disabled {
   gap: var(--space-xs);
 }
 
-.form-grid.compact > .button,
-.form-grid > .button {
-  justify-self: start;
-}
-
 label {
   display: grid;
   gap: 7px;
@@ -1054,11 +1049,19 @@ textarea::placeholder {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-md);
+  align-items: start;
 }
 
 .split-grid.duo,
 .transactions-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.recommend-grid,
+.pocket-grid,
+.badge-grid,
+.marketing-grid {
+  align-items: start;
 }
 
 .transaction-extra {
