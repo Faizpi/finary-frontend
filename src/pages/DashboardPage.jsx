@@ -297,9 +297,13 @@ export default function DashboardPage({
                                 {level === 0 ? (
                                   <img
                                     className="badge-photo"
-                                    src={defaultBadgeIcon}
+                                    src={getBadgeBaseIcon(badge.key)}
                                     alt={`${badge.name} terkunci`}
                                     loading="lazy"
+                                    onError={(event) => {
+                                      event.currentTarget.onerror = null
+                                      event.currentTarget.src = defaultBadgeIcon
+                                    }}
                                   />
                                 ) : (
                                   <img

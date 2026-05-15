@@ -1,5 +1,5 @@
 import RupiahInput from '../components/RupiahInput'
-import { experienceLevelOptions, interestCategoryOptions, skillOptions, visualAssets } from '../constants'
+import { visualAssets } from '../constants'
 
 export default function AssessmentPage({
   assessment,
@@ -41,52 +41,6 @@ export default function AssessmentPage({
             <RupiahInput value={assessmentForm.emergency_fund}
               onChange={(e) => setAssessmentForm((p) => ({ ...p, emergency_fund: e.target.value }))} placeholder required />
           </label>
-
-          <hr className="form-divider" />
-          <p className="helper form-section-label">{t('Profil Side Hustle', 'Side Hustle Profile')}</p>
-
-          <label>{t('Level Pengalaman', 'Experience Level')}
-            <select value={assessmentForm.experience_level}
-              onChange={(e) => setAssessmentForm((p) => ({ ...p, experience_level: e.target.value }))}>
-              {experienceLevelOptions.map((o) => <option key={o} value={o}>{o}</option>)}
-            </select>
-          </label>
-          <label>{t('Kategori Minat', 'Interest Category')}
-            <select value={assessmentForm.interest_category}
-              onChange={(e) => setAssessmentForm((p) => ({ ...p, interest_category: e.target.value }))}>
-              <option value="">{t('Pilih kategori minat', 'Pick an interest category')}</option>
-              {interestCategoryOptions.map((o) => <option key={o} value={o}>{o}</option>)}
-            </select>
-          </label>
-          <label>{t('Waktu Luang per Minggu (jam)', 'Available Hours per Week')}
-            <input type="number" min="0" max="168" value={assessmentForm.available_hours_per_week}
-              onChange={(e) => setAssessmentForm((p) => ({ ...p, available_hours_per_week: e.target.value }))}
-              placeholder={t('Jam luang yang bisa dipakai', 'Hours you can spare')} />
-          </label>
-          <fieldset className="skill-chip-group">
-            <legend>{t('Keahlian', 'Skills')}</legend>
-            <div className="skill-chip-list">
-              {skillOptions.map((skill) => {
-                const selected = (assessmentForm.skills || []).includes(skill)
-                return (
-                  <button
-                    type="button"
-                    key={skill}
-                    className={`skill-chip ${selected ? 'on' : ''}`}
-                    onClick={() => setAssessmentForm((p) => ({
-                      ...p,
-                      skills: selected
-                        ? p.skills.filter((s) => s !== skill)
-                        : [...(p.skills || []), skill],
-                    }))}
-                    aria-pressed={selected}
-                  >
-                    {skill}
-                  </button>
-                )
-              })}
-            </div>
-          </fieldset>
 
           <button className="button" disabled={loading}>
             {loading ? t('Menganalisis...', 'Analyzing...') : t('Simpan & Analisis', 'Save & Analyze')}

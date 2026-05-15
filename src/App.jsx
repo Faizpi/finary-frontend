@@ -57,7 +57,7 @@ function App() {
     emergency_fund: '',
     loan_payment: '',
     skills: [],
-    experience_level: 'Beginner',
+    experience_level: '',
     interest_category: '',
     available_hours_per_week: '',
   })
@@ -256,6 +256,7 @@ function App() {
 
       try {
         await authApi.updateAvatar({ avatar: resized })
+        await refreshInsights()
       } catch {
         // Avatar saved locally even if server fails
       }
@@ -267,6 +268,7 @@ function App() {
     setProfilePhoto('')
     try {
       await authApi.updateAvatar({ avatar: '' })
+      await refreshInsights()
     } catch {
       // Ignore
     }
