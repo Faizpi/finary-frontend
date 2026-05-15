@@ -198,6 +198,33 @@ function App() {
     document.documentElement.dataset.theme = theme
   }, [theme])
 
+  // Reset all form state when user logs out (user becomes null).
+  // This prevents stale data from a previous session leaking into a new
+  // registration / onboarding flow.
+  useEffect(() => {
+    if (user) return
+
+    setAssessmentForm({
+      monthly_income: '',
+      monthly_expense: '',
+      actual_savings: '',
+      budget_goal: '',
+      emergency_fund: '',
+      loan_payment: '',
+      skills: [],
+      experience_level: '',
+      interest_category: '',
+      available_hours_per_week: '',
+    })
+    setTransactionForm({ type: 'expense', category: '', amount: '', transaction_date: getToday(), note: '' })
+    setBudgetForm({ category: 'Makanan', period: getCurrentMonth(), monthly_limit: '' })
+    setForumForm({ title: '', body: '', tags: '' })
+    setForumReplyForms({})
+    setRecommendForm({ experience_level: '', available_hours_per_week: '', interest_category: '' })
+    setMlClassifyResult(null)
+    setMlSideHustleResult(null)
+  }, [user])
+
   // Sync server assessment into the form — but NOT during onboarding so the
   // first-time user always sees an empty form with placeholder guides.
   useEffect(() => {
@@ -434,18 +461,19 @@ function App() {
         )}
 
         {activeTab === 'profile' && (
-          <ProfilePage
-            assessment={assessment}
-            badges={badges}
-            handleProfilePhotoChange={handleProfilePhotoChange}
-            handleRemovePhoto={handleRemovePhoto}
-            leaderboard={leaderboard}
-            profile={profile}
-            profilePhoto={profilePhoto}
-            setProfilePhoto={setProfilePhoto}
-            t={t}
-            user={user}
-          />
+            <ProfilePage
+              assessment={assessment}
+              badges={badges}
+              handleProfilePhotoChange={handleProfilePhotoChange}
+              handleRemovePhoto={handleRemovePhoto}
+              language={language}
+              leaderboard={leaderboard}
+              profile={profile}
+              profilePhoto={profilePhoto}
+              setProfilePhoto={setProfilePhoto}
+              t={t}
+              user={user}
+            />
         )}
 
         {activeTab === 'transactions' && (

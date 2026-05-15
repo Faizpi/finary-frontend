@@ -8,6 +8,7 @@ export default function ProfilePage({
   badges,
   handleProfilePhotoChange,
   handleRemovePhoto,
+  language,
   leaderboard,
   profile,
   profilePhoto,
@@ -80,15 +81,13 @@ export default function ProfilePage({
                 </div>
               </div>
               <div className="profile-header-main">
-                <h2>{user.name || '-'}</h2>
+                <div className="profile-title-row">
+                  <h2>{user.name || '-'}</h2>
+                  <span className={`ml-classify-badge profile-title-status ml-${assessment?.classification || 'unknown'}`}>
+                    {assessment ? (assessment.classification || '-').toUpperCase() : t('BELUM ASSESSMENT', 'NOT ASSESSED')}
+                  </span>
+                </div>
                 <p>{user.email || '-'}</p>
-                {assessment?.classification !== 'stable' && (
-                  <div className="profile-status-chip">
-                    <span className={`ml-classify-badge ml-${assessment?.classification || 'unknown'}`}>
-                      {assessment ? (assessment.classification || '-').toUpperCase() : t('BELUM ASSESSMENT', 'NOT ASSESSED')}
-                    </span>
-                  </div>
-                )}
                 <div className="profile-meta-row">
                   <span>{t('Status akun', 'Account status')}: <strong>{assessment ? t('Aktif', 'Active') : t('Belum assessment', 'Assessment pending')}</strong></span>
                   <span>{t('Bergabung', 'Joined')}: <strong>{user.created_at ? compactDate(user.created_at) : '-'}</strong></span>
@@ -132,6 +131,9 @@ export default function ProfilePage({
 
               <article className="inset profile-card simple">
                 <h3>{t('Peringatan', 'Warnings')}</h3>
+                {language === 'en' && allWarnings.length > 0 && (
+                  <p className="helper">{t('Peringatan ditampilkan dalam Bahasa Indonesia (dari server).', 'Warnings are displayed in Indonesian (from the server).')}</p>
+                )}
                 <ul className="dynamic-profile-warnings">
                   {allWarnings.length === 0 && (
                     <li>{t('Tidak ada peringatan. Pertahankan ritme keuanganmu.', 'No warnings yet. Keep up the good rhythm.')}</li>

@@ -41,6 +41,7 @@ export function useAppData() {
     setBudgets([])
     setAssessment(null)
     setRecommendations([])
+    setRecommendationSource('-')
     setForumPosts([])
   }, [])
 

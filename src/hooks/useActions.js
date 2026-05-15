@@ -248,7 +248,7 @@ export function useActions({
         tags: splitCsv(forumForm.tags),
       })
 
-      setForumForm({ title: '', body: '', tags: 'budget,saving' })
+      setForumForm({ title: '', body: '', tags: '' })
     }, t('Postingan forum berhasil dipublikasikan.', 'Forum post published successfully.'), refreshForum)
   }
 

@@ -569,6 +569,18 @@ button:disabled {
   gap: var(--space-sm);
   padding: var(--space-lg);
   min-height: auto;
+  overflow: hidden;
+}
+
+.onboarding-brand-block h1 {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.onboarding-brand-block p {
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 .onboarding-brand-block .assessment-illustration {
@@ -1275,6 +1287,20 @@ textarea::placeholder {
   gap: var(--space-md);
 }
 
+.profile-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.profile-title-status {
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  min-height: unset;
+  box-shadow: 0 3px 0 var(--line-strong);
+}
+
 .profile-header {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -1823,6 +1849,38 @@ tr:last-child td {
 
 .ml-classify-badge.ml-survival {
   background: color-mix(in srgb, var(--state-danger) 18%, var(--surface));
+}
+
+.assessment-preview.compact {
+  align-content: start;
+  gap: 10px;
+}
+
+.assessment-preview.compact .assessment-illustration {
+  width: min(210px, 82%);
+  max-height: 170px;
+}
+
+.classification-comparison {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.classification-comparison h4 {
+  font-size: 0.92rem;
+}
+
+.progress.ml-bar-growth {
+  background: linear-gradient(90deg, var(--state-on), var(--cyan));
+}
+
+.progress.ml-bar-stable {
+  background: linear-gradient(90deg, var(--yellow), var(--orange));
+}
+
+.progress.ml-bar-survival {
+  background: linear-gradient(90deg, var(--orange), var(--state-danger));
 }
 
 .prob-row {

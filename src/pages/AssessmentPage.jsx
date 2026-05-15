@@ -47,7 +47,7 @@ export default function AssessmentPage({
           </button>
         </form>
 
-        <article className="inset assessment-preview">
+        <article className="inset assessment-preview compact">
           <img
             className="assessment-illustration"
             src={visualAssets.assessment}
@@ -63,6 +63,31 @@ export default function AssessmentPage({
               {mlClassifyResult.explanation && (
                 <p className="helper">{mlClassifyResult.explanation}</p>
               )}
+              {mlClassifyResult.probabilities && (
+                <div className="classification-comparison">
+                  <h4>{t('Perbandingan Status', 'Status Comparison')}</h4>
+                  {['growth', 'stable', 'survival'].map((status) => {
+                    const pct = Math.round((mlClassifyResult.probabilities[status] || 0) * 100)
+                    return (
+                      <div className="prob-item" key={status}>
+                        <span>{status}</span>
+                        <div className="progress-wrap">
+                          <div
+                            className={`progress ml-bar-${status}`}
+                            style={{ width: `${pct}%` }}
+                            role="progressbar"
+                            aria-valuenow={pct}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                            aria-label={`${status} ${pct}%`}
+                          />
+                        </div>
+                        <span>{pct}%</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </>
           ) : (
             <>
@@ -73,6 +98,31 @@ export default function AssessmentPage({
                   <div className={`ml-classify-badge ml-${assessment.classification}`}>
                     {(assessment.classification || '-').toUpperCase()}
                   </div>
+                  {assessment.metadata?.classification_result?.probabilities && (
+                    <div className="classification-comparison">
+                      <h4>{t('Perbandingan Status', 'Status Comparison')}</h4>
+                      {['growth', 'stable', 'survival'].map((status) => {
+                        const pct = Math.round((assessment.metadata.classification_result.probabilities[status] || 0) * 100)
+                        return (
+                          <div className="prob-item" key={status}>
+                            <span>{status}</span>
+                            <div className="progress-wrap">
+                              <div
+                                className={`progress ml-bar-${status}`}
+                                style={{ width: `${pct}%` }}
+                                role="progressbar"
+                                aria-valuenow={pct}
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                                aria-label={`${status} ${pct}%`}
+                              />
+                            </div>
+                            <span>{pct}%</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
                 </>
               )}
             </>
