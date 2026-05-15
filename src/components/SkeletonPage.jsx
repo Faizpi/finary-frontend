@@ -15,13 +15,14 @@ export default function SkeletonPage({ activeTab }) {
 function SkeletonNavbar() {
   return (
     <div className="skeleton-header">
-      <div className="skeleton sk-h3" style={{ width: 120 }} />
-      <div style={{ display: 'flex', gap: 8 }}>
-        <div className="skeleton" style={{ width: 80, height: 46, borderRadius: 999 }} />
-        <div className="skeleton" style={{ width: 80, height: 46, borderRadius: 999 }} />
-        <div className="skeleton" style={{ width: 80, height: 46, borderRadius: 999 }} />
+      <div className="skeleton sk-h3 skeleton-brand" />
+      <div className="skeleton-tabs">
+        <div className="skeleton skeleton-tab" />
+        <div className="skeleton skeleton-tab" />
+        <div className="skeleton skeleton-tab" />
       </div>
-      <div className="skeleton" style={{ width: 140, height: 40, borderRadius: 999 }} />
+      <div className="skeleton skeleton-user-pill" />
+      <div className="skeleton skeleton-menu-button" />
     </div>
   )
 }
@@ -36,7 +37,7 @@ function SkeletonDashboard() {
           <div className="skeleton sk-h1" style={{ width: '60%' }} />
           <div className="skeleton sk-text sk-w-60" />
         </div>
-        <div className="skeleton" style={{ width: 240, height: 200, borderRadius: 22 }} />
+        <div className="skeleton skeleton-hero-art" />
       </div>
       <div className="skeleton-panel">
         <div className="skeleton sk-h3 sk-w-40" />
@@ -52,7 +53,7 @@ function SkeletonDashboard() {
             <div className="skeleton sk-text sk-w-40" />
           </div>
         </div>
-        <div className="skeleton-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+        <div className="skeleton-grid skeleton-metrics">
           <div className="skeleton sk-card-sm" />
           <div className="skeleton sk-card-sm" />
           <div className="skeleton sk-card-sm" />

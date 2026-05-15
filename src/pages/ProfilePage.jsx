@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { badgeDescriptionText, defaultBadgeIcon } from '../constants'
 import { compactDate, currency } from '../lib/format'
-import { getBadgeBaseIcon, getBadgeIcon, getBadgeLevel } from '../lib/helpers'
+import { getBadgeBaseIcon, getBadgeIcon, getBadgeLevel, translateWarning } from '../lib/helpers'
 
 export default function ProfilePage({
   assessment,
@@ -131,15 +131,12 @@ export default function ProfilePage({
 
               <article className="inset profile-card simple">
                 <h3>{t('Peringatan', 'Warnings')}</h3>
-                {language === 'en' && allWarnings.length > 0 && (
-                  <p className="helper">{t('Peringatan ditampilkan dalam Bahasa Indonesia (dari server).', 'Warnings are displayed in Indonesian (from the server).')}</p>
-                )}
                 <ul className="dynamic-profile-warnings">
                   {allWarnings.length === 0 && (
                     <li>{t('Tidak ada peringatan. Pertahankan ritme keuanganmu.', 'No warnings yet. Keep up the good rhythm.')}</li>
                   )}
                   {allWarnings.map((item, idx) => (
-                    <li key={`warning-${idx}`}>{item}</li>
+                    <li key={`warning-${idx}`}>{translateWarning(item, language)}</li>
                   ))}
                 </ul>
               </article>

@@ -759,7 +759,12 @@ button:disabled {
 }
 
 .form-grid.compact {
-  gap: 8px;
+  gap: var(--space-xs);
+}
+
+.form-grid.compact > .button,
+.form-grid > .button {
+  justify-self: start;
 }
 
 label {
@@ -1726,7 +1731,7 @@ tr:last-child td {
 
 .skeleton-header {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   gap: var(--space-sm);
   align-items: center;
   padding: 12px;
@@ -1734,6 +1739,35 @@ tr:last-child td {
   border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: var(--card-shadow);
+}
+
+.skeleton-brand {
+  width: 120px;
+}
+
+.skeleton-tabs {
+  display: flex;
+  gap: 8px;
+  justify-self: center;
+}
+
+.skeleton-tab {
+  width: 80px;
+  height: 46px;
+  border-radius: 999px;
+}
+
+.skeleton-user-pill {
+  width: 140px;
+  height: 40px;
+  border-radius: 999px;
+}
+
+.skeleton-menu-button {
+  display: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 18px;
 }
 
 .skeleton-panel {
@@ -1744,6 +1778,16 @@ tr:last-child td {
   box-shadow: var(--card-shadow);
   display: grid;
   gap: var(--space-sm);
+}
+
+.skeleton-hero-art {
+  width: 240px;
+  height: 200px;
+  border-radius: 22px;
+}
+
+.skeleton-metrics {
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .skeleton-hero {
@@ -2415,4 +2459,59 @@ tr:last-child td {
   color: var(--accent);
   font-size: 0.78rem;
   font-weight: 700;
+}
+
+/* ── Skeleton responsive ── */
+@media (max-width: 920px) {
+  .skeleton-header {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .skeleton-tabs {
+    display: none;
+  }
+
+  .skeleton-menu-button {
+    display: block;
+  }
+
+  .skeleton-user-pill {
+    display: none;
+  }
+
+  .skeleton-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .skeleton-hero-art {
+    display: none;
+  }
+
+  .skeleton-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .skeleton-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .skeleton-header {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .skeleton-grid-2,
+  .skeleton-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .skeleton-hero {
+    min-height: 180px;
+    padding: var(--space-sm);
+  }
+
+  .skeleton-metrics {
+    grid-template-columns: 1fr;
+  }
 }
