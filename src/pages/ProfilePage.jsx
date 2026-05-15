@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { defaultBadgeIcon } from '../constants'
+import { badgeDescriptionText, defaultBadgeIcon } from '../constants'
 import { compactDate, currency } from '../lib/format'
 import { getBadgeBaseIcon, getBadgeIcon, getBadgeLevel } from '../lib/helpers'
 
@@ -34,6 +34,17 @@ export default function ProfilePage({
     () => (badges?.badges || []).filter((badge) => badge.unlocked).slice(-3).reverse(),
     [badges],
   )
+
+  // Consolidate all warnings: budget overages + prediction warning + prediction recommendations
+  const allWarnings = useMemo(() => {
+    const base = profile?.warnings || []
+    const predWarning = profile?.prediction?.warning_flag && profile?.prediction?.warning_text
+      ? [profile.prediction.warning_text]
+      : []
+    const predRecs = (profile?.prediction?.recommendations || [])
+    // Deduplicate by string value
+    return Array.from(new Set([...base, ...predWarning, ...predRecs]))
+  }, [profile])
 
   return (
           <section className="panel stack profile-simple">
@@ -117,28 +128,16 @@ export default function ProfilePage({
                     <strong>{profile?.prediction?.generated_for || '-'}</strong>
                   </span>
                 </div>
-                {profile?.prediction?.warning_text && (
-                  <p className={`prediction-warning ${profile?.prediction?.warning_flag ? 'is-warning' : ''}`}>
-                    {profile.prediction.warning_text}
-                  </p>
-                )}
-                {(profile?.prediction?.recommendations || []).length > 0 && (
-                  <ul className="prediction-recommendations">
-                    {profile.prediction.recommendations.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                )}
               </article>
 
               <article className="inset profile-card simple">
                 <h3>{t('Peringatan', 'Warnings')}</h3>
                 <ul className="dynamic-profile-warnings">
-                  {(profile?.warnings || []).length === 0 && (
+                  {allWarnings.length === 0 && (
                     <li>{t('Tidak ada peringatan. Pertahankan ritme keuanganmu.', 'No warnings yet. Keep up the good rhythm.')}</li>
                   )}
-                  {(profile?.warnings || []).map((item) => (
-                    <li key={`warning-${item}`}>{item}</li>
+                  {allWarnings.map((item, idx) => (
+                    <li key={`warning-${idx}`}>{item}</li>
                   ))}
                 </ul>
               </article>
@@ -183,7 +182,9 @@ export default function ProfilePage({
                       </div>
                       <div className="profile-achievement-copy">
                         <strong>{badge.name}</strong>
-                        <small>{badge.description}</small>
+                        <small>{badgeDescriptionText[badge.key]
+                          ? t(badgeDescriptionText[badge.key].id, badgeDescriptionText[badge.key].en)
+                          : ''}</small>
                       </div>
                     </article>
                   )

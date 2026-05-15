@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { defaultBadgeIcon, getCurrentMonth, maxBadgeLevel, visualAssets } from '../constants'
+import { badgeDescriptionText, defaultBadgeIcon, getCurrentMonth, maxBadgeLevel, visualAssets } from '../constants'
 import { currency } from '../lib/format'
 import { buildPieSlices, getBadgeBaseIcon, getBadgeIcon, getBadgeLevel, getPieBackground } from '../lib/helpers'
 
@@ -329,11 +329,13 @@ export default function DashboardPage({
                               </div>
                               <div className="badge-copy">
                                 <strong>{badge.name}</strong>
-                                <small>{badge.description}</small>
+                                <small>{badgeDescriptionText[badge.key]
+                                  ? t(badgeDescriptionText[badge.key].id, badgeDescriptionText[badge.key].en)
+                                  : ''}</small>
                               </div>
                             </div>
 
-                            <div className="badge-level-row" aria-label={badge.unlocked ? `Level ${level} dari ${maxBadgeLevel}` : 'Terkunci'}>
+                            <div className="badge-level-row" aria-label={badge.unlocked ? t(`Level ${level} dari ${maxBadgeLevel}`, `Level ${level} of ${maxBadgeLevel}`) : t('Terkunci', 'Locked')}>
                               <span className="badge-level-label">{badge.unlocked ? `Lv ${level}` : 'Lv 0'}</span>
                               {badge.unlocked && (
                                 <div className="badge-level-track">

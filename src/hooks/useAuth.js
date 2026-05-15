@@ -5,7 +5,7 @@ import { authApi } from '../lib/api'
  * Manages authentication state: token, bootstrapping, login, register, logout.
  * Accepts callbacks from the parent to coordinate data refresh and session clear.
  */
-export function useAuth({ refreshAll, clearData, setActiveTab, setMessage, setError }) {
+export function useAuth({ refreshAll, clearData, setActiveTab, setMessage, setError, t }) {
   const savedToken = localStorage.getItem('finary_token')
 
   const [token, setToken] = useState(savedToken || '')
@@ -55,7 +55,7 @@ export function useAuth({ refreshAll, clearData, setActiveTab, setMessage, setEr
 
         if (!latestAssessment) {
           setActiveTab('assessment')
-          setMessage('Lengkapi assessment awal agar insight dan rekomendasi jadi personal.')
+          setMessage(t('Lengkapi assessment awal agar insight dan rekomendasi jadi personal.', 'Complete the initial assessment for personalized insights and recommendations.'))
         }
       } catch {
         if (!isMounted) {
@@ -63,7 +63,7 @@ export function useAuth({ refreshAll, clearData, setActiveTab, setMessage, setEr
         }
 
         clearSession()
-        setError('Sesi sudah berakhir. Silakan login kembali.')
+        setError(t('Sesi sudah berakhir. Silakan login kembali.', 'Session expired. Please log in again.'))
       } finally {
         if (isMounted) {
           setLoading(false)
@@ -77,7 +77,7 @@ export function useAuth({ refreshAll, clearData, setActiveTab, setMessage, setEr
     return () => {
       isMounted = false
     }
-  }, [token, refreshAll, clearSession, setActiveTab, setMessage, setError])
+  }, [token, refreshAll, clearSession, setActiveTab, setMessage, setError, t])
 
   const handleAuthSubmit = async (event) => {
     event.preventDefault()
@@ -96,28 +96,28 @@ export function useAuth({ refreshAll, clearData, setActiveTab, setMessage, setEr
 
       if (isRegister) {
         setShowOnboarding(true)
-        setMessage('Akun berhasil dibuat! Lengkapi asesmen finansial kamu dulu.')
+        setMessage(t('Akun berhasil dibuat! Lengkapi asesmen finansial kamu dulu.', 'Account created! Complete your financial assessment first.'))
       } else {
         const { latestAssessment } = await refreshAll()
         if (!latestAssessment) {
           setActiveTab('assessment')
-          setMessage('Selamat datang! Lengkapi assessment awal untuk personalisasi dashboard.')
+          setMessage(t('Selamat datang! Lengkapi assessment awal untuk personalisasi dashboard.', 'Welcome! Complete the initial assessment to personalize your dashboard.'))
         } else {
-          setMessage('Session aktif. Selamat datang di Finary.')
+          setMessage(t('Session aktif. Selamat datang di Finary.', 'Session active. Welcome to Finary.'))
         }
       }
     } catch (err) {
       if (!err?.response) {
-        setError(`Tidak bisa terhubung ke API: ${err?.message || 'Network error'}`)
+        setError(t(`Tidak bisa terhubung ke API: ${err?.message || 'Network error'}`, `Cannot connect to API: ${err?.message || 'Network error'}`))
       } else if (err.response.status === 422) {
         const validationErrors = err.response.data?.errors
         if (validationErrors) {
           setError(Object.values(validationErrors).flat().join(' '))
         } else {
-          setError(err.response.data?.message || 'Validasi gagal. Periksa input Anda.')
+          setError(err.response.data?.message || t('Validasi gagal. Periksa input Anda.', 'Validation failed. Please check your input.'))
         }
       } else {
-        setError(err?.response?.data?.message || 'Autentikasi gagal. Coba ulangi.')
+        setError(err?.response?.data?.message || t('Autentikasi gagal. Coba ulangi.', 'Authentication failed. Please try again.'))
       }
     } finally {
       setLoading(false)
@@ -140,15 +140,15 @@ export function useAuth({ refreshAll, clearData, setActiveTab, setMessage, setEr
 
       if (!latestAssessment) {
         setActiveTab('assessment')
-        setMessage('Akun demo berhasil login. Lengkapi assessment awal terlebih dulu.')
+        setMessage(t('Akun demo berhasil login. Lengkapi assessment awal terlebih dulu.', 'Demo account logged in. Complete the initial assessment first.'))
       } else {
-        setMessage('Masuk dengan akun demo berhasil.')
+        setMessage(t('Masuk dengan akun demo berhasil.', 'Logged in with demo account successfully.'))
       }
     } catch (err) {
       if (!err?.response) {
-        setError('Tidak bisa terhubung ke API. Pastikan koneksi internet aktif.')
+        setError(t('Tidak bisa terhubung ke API. Pastikan koneksi internet aktif.', 'Cannot connect to API. Please check your internet connection.'))
       } else {
-        setError(err?.response?.data?.message || 'Akun demo belum siap. Jalankan seed database dahulu.')
+        setError(err?.response?.data?.message || t('Akun demo belum siap. Jalankan seed database dahulu.', 'Demo account not ready. Please run the database seed first.'))
       }
     } finally {
       setLoading(false)
@@ -167,7 +167,7 @@ export function useAuth({ refreshAll, clearData, setActiveTab, setMessage, setEr
     } finally {
       clearSession()
       setLoading(false)
-      setMessage('Anda sudah logout.')
+      setMessage(t('Anda sudah logout.', 'You have been logged out.'))
     }
   }
 

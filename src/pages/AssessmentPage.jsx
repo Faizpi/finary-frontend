@@ -15,7 +15,7 @@ export default function AssessmentPage({
       <div className="split-grid duo">
         <form className="inset form-grid" onSubmit={handleAssessmentSubmit}>
           <h3>{t('Assessment Finansial', 'Financial Assessment')}</h3>
-          <p className="helper">{t('6 field input — dikirim ke model AI (/classify) untuk klasifikasi otomatis.', '6 input fields — sent to the AI model (/classify) for automatic classification.')}</p>
+          <p className="helper">{t('Isi 6 data keuangan berikut agar AI bisa menganalisis kondisi finansialmu.', 'Fill in these 6 financial fields so AI can analyze your financial condition.')}</p>
 
           <label>{t('Pendapatan Bulanan (IDR)', 'Monthly Income (IDR)')}
             <RupiahInput value={assessmentForm.monthly_income}

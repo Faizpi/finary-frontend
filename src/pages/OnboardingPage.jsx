@@ -18,6 +18,15 @@ export default function OnboardingPage({
   t,
 }) {
   const [step, setStep] = useState(1)
+  const isFilled = (value) => value !== '' && value !== null && value !== undefined
+  const isFinancialStepComplete = [
+    assessmentForm.monthly_income,
+    assessmentForm.monthly_expense,
+    assessmentForm.actual_savings,
+    assessmentForm.budget_goal,
+    assessmentForm.loan_payment,
+    assessmentForm.emergency_fund,
+  ].every(isFilled)
 
   return (
     <div className="page auth-page">
@@ -95,7 +104,7 @@ export default function OnboardingPage({
               <div className="auth-grid">
                 <div className="auth-card-head">
                   <h2>{t('Data Keuangan Kamu', 'Your Financial Data')}</h2>
-                  <p>{t('6 field — sesuai dengan input model AI /classify.', '6 fields — aligned with the AI model inputs /classify.')}</p>
+                  <p>{t('Isi 6 data keuangan berikut agar AI bisa menganalisis kondisi finansialmu.', 'Fill in these 6 financial fields so AI can analyze your financial condition.')}</p>
                 </div>
                 <label>{t('Pendapatan Bulanan (IDR)', 'Monthly Income (IDR)')}
                   <RupiahInput value={assessmentForm.monthly_income}
@@ -124,7 +133,7 @@ export default function OnboardingPage({
                 {error && <div className="alert error"><span>{error}</span><button type="button" className="alert-close" onClick={() => setError('')}>x</button></div>}
                 <div className="auth-actions">
                   <button type="button" className="button" onClick={() => {
-                    if (!assessmentForm.monthly_income || !assessmentForm.monthly_expense || !assessmentForm.actual_savings || !assessmentForm.budget_goal || !assessmentForm.loan_payment || !assessmentForm.emergency_fund) {
+                    if (!isFinancialStepComplete) {
                       setError(t('Lengkapi semua field keuangan terlebih dahulu.', 'Please fill in all financial fields first.'))
                       return
                     }

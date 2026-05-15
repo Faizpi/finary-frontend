@@ -115,6 +115,7 @@ function App() {
     setActiveTab,
     setMessage,
     setError,
+    t,
   })
   const {
     token,
@@ -197,8 +198,10 @@ function App() {
     document.documentElement.dataset.theme = theme
   }, [theme])
 
+  // Sync server assessment into the form — but NOT during onboarding so the
+  // first-time user always sees an empty form with placeholder guides.
   useEffect(() => {
-    if (!assessment) return
+    if (!assessment || showOnboarding) return
 
     const sideHustleContext = assessment.metadata?.side_hustle_context || {}
     setAssessmentForm((prev) => ({
@@ -210,11 +213,11 @@ function App() {
       emergency_fund: String(assessment.emergency_fund ?? ''),
       loan_payment: String(assessment.loan_payment ?? ''),
       skills: assessment.skills ?? sideHustleContext.skills ?? [],
-      experience_level: sideHustleContext.experience_level ?? 'Beginner',
+      experience_level: sideHustleContext.experience_level ?? '',
       interest_category: sideHustleContext.interest_category ?? '',
       available_hours_per_week: String(assessment.available_hours_per_week ?? sideHustleContext.available_hours_per_week ?? ''),
     }))
-  }, [assessment])
+  }, [assessment, showOnboarding])
 
   // Sync profile photo from server user data
   useEffect(() => {

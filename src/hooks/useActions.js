@@ -66,23 +66,23 @@ export function useActions({
         if (validationErrors) {
           setError(Object.values(validationErrors).flat().join(' '))
         } else {
-          setError(err.response.data?.message || 'Validasi gagal. Periksa input Anda.')
+          setError(err.response.data?.message || t('Validasi gagal. Periksa input Anda.', 'Validation failed. Please check your input.'))
         }
       } else if (err?.response?.status === 429) {
-        setError('Terlalu banyak request. Tunggu sebentar lalu coba lagi.')
+        setError(t('Terlalu banyak request. Tunggu sebentar lalu coba lagi.', 'Too many requests. Please wait a moment and try again.'))
       } else {
-        setError(err?.response?.data?.message || 'Proses gagal, coba lagi.')
+        setError(err?.response?.data?.message || t('Proses gagal, coba lagi.', 'Action failed, please try again.'))
       }
     } finally {
       setLoading(false)
     }
-  }, [refreshFinancial, setLoading, setError, setMessage])
+  }, [refreshFinancial, setLoading, setError, setMessage, t])
 
   const handleTransactionSubmit = async (event) => {
     event.preventDefault()
 
     if (pocketOptions.length === 0) {
-      setError('Buat kantong budget dulu sebelum menambah transaksi.')
+      setError(t('Buat kantong budget dulu sebelum menambah transaksi.', 'Create a budget pocket first before adding transactions.'))
       setMessage('')
       return
     }
@@ -95,11 +95,11 @@ export function useActions({
       })
 
       setTransactionForm((prev) => ({ ...prev, amount: '', note: '' }))
-    }, 'Transaksi baru sudah ditambahkan.')
+    }, t('Transaksi baru sudah ditambahkan.', 'New transaction added.'))
   }
 
   const handleDeleteTransaction = async (id) => {
-    await guardedAction(() => transactionApi.remove(id), 'Transaksi berhasil dihapus.')
+    await guardedAction(() => transactionApi.remove(id), t('Transaksi berhasil dihapus.', 'Transaction deleted successfully.'))
   }
 
   const handleBudgetSubmit = async (event) => {
@@ -112,7 +112,7 @@ export function useActions({
       })
 
       setBudgetForm((prev) => ({ ...prev, monthly_limit: '' }))
-    }, 'Budget tersimpan.')
+    }, t('Budget tersimpan.', 'Budget saved.'))
   }
 
   const handleLoanUpdateSubmit = async (event) => {
@@ -180,15 +180,15 @@ export function useActions({
       setMlClassifyResult(classifyData)
       // Assessment touches everything — full refresh is justified here once.
       await refreshAll()
-      setMessage(`Assessment tersimpan. Klasifikasi AI: ${classifyData.classification}`)
+      setMessage(t(`Assessment tersimpan. Klasifikasi AI: ${classifyData.classification}`, `Assessment saved. AI classification: ${classifyData.classification}`))
 
       setShowOnboarding(false)
       setActiveTab('dashboard')
     } catch (err) {
       if (err?.response?.status === 429) {
-        setError('Terlalu banyak request ke AI. Tunggu sebentar lalu coba lagi.')
+        setError(t('Terlalu banyak request ke AI. Tunggu sebentar lalu coba lagi.', 'Too many AI requests. Please wait a moment and try again.'))
       } else {
-        setError(err?.response?.data?.message || err?.message || 'Assessment gagal, coba lagi.')
+        setError(err?.response?.data?.message || err?.message || t('Assessment gagal, coba lagi.', 'Assessment failed, please try again.'))
       }
     } finally {
       setLoading(false)
@@ -227,12 +227,12 @@ export function useActions({
       })
       setMlSideHustleResult(res.data.data?.recommendations || [])
       setRecommendationSource(res.data.data?.source || '-')
-      setMessage('Rekomendasi side hustle berhasil dimuat.')
+      setMessage(t('Rekomendasi side hustle berhasil dimuat.', 'Side hustle recommendations loaded successfully.'))
     } catch (err) {
       if (err?.response?.status === 429) {
-        setError('Terlalu banyak request ke AI. Tunggu sebentar lalu coba lagi.')
+        setError(t('Terlalu banyak request ke AI. Tunggu sebentar lalu coba lagi.', 'Too many AI requests. Please wait a moment and try again.'))
       } else {
-        setError(err?.response?.data?.message || err?.message || 'Gagal memuat rekomendasi side hustle.')
+        setError(err?.response?.data?.message || err?.message || t('Gagal memuat rekomendasi side hustle.', 'Failed to load side hustle recommendations.'))
       }
     } finally {
       setMlLoading(false)
@@ -249,7 +249,7 @@ export function useActions({
       })
 
       setForumForm({ title: '', body: '', tags: 'budget,saving' })
-    }, 'Postingan forum berhasil dipublikasikan.', refreshForum)
+    }, t('Postingan forum berhasil dipublikasikan.', 'Forum post published successfully.'), refreshForum)
   }
 
   const handleForumReplySubmit = async (event, postId) => {
@@ -258,7 +258,7 @@ export function useActions({
     const body = (forumReplyForms[postId] || '').trim()
 
     if (!body) {
-      setError('Balasan tidak boleh kosong.')
+      setError(t('Balasan tidak boleh kosong.', 'Reply cannot be empty.'))
       setMessage('')
       return
     }
@@ -266,7 +266,7 @@ export function useActions({
     await guardedAction(async () => {
       await forumApi.reply(postId, { body })
       setForumReplyForms((prev) => ({ ...prev, [postId]: '' }))
-    }, 'Balasan forum berhasil dikirim.', refreshForum)
+    }, t('Balasan forum berhasil dikirim.', 'Forum reply sent successfully.'), refreshForum)
   }
 
   const handleExportCsv = async () => {
@@ -289,9 +289,9 @@ export function useActions({
       link.click()
       link.remove()
       window.URL.revokeObjectURL(url)
-      setMessage('Laporan CSV berhasil diunduh.')
+      setMessage(t('Laporan CSV berhasil diunduh.', 'CSV report downloaded successfully.'))
     } catch (err) {
-      setError(err?.response?.data?.message || 'Gagal export report.')
+      setError(err?.response?.data?.message || t('Gagal export report.', 'Failed to export report.'))
     } finally {
       setLoading(false)
     }

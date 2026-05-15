@@ -62,6 +62,37 @@ export const badgeLevelByKey = {
 
 export const maxBadgeLevel = 6
 
+export const badgeDescriptionText = {
+  first_saver: {
+    id: 'Menandai progres saat kamu berhasil mulai menyisihkan uang.',
+    en: 'Marks your progress when you start setting money aside.',
+  },
+  expense_tracker: {
+    id: 'Membantu melihat konsistensi mencatat pengeluaran.',
+    en: 'Shows how consistently you track expenses.',
+  },
+  budget_keeper: {
+    id: 'Menunjukkan kemampuan menjaga pengeluaran tetap sesuai budget.',
+    en: 'Shows your ability to keep spending within budget.',
+  },
+  daily_logger: {
+    id: 'Mengukur kebiasaan rutin mencatat aktivitas keuangan.',
+    en: 'Tracks your habit of logging financial activity regularly.',
+  },
+  side_hustler: {
+    id: 'Menandai progres eksplorasi peluang penghasilan tambahan.',
+    en: 'Marks progress exploring extra income opportunities.',
+  },
+  saving_streak: {
+    id: 'Menunjukkan konsistensi mempertahankan kebiasaan menabung.',
+    en: 'Shows consistency in maintaining a saving habit.',
+  },
+  comeback: {
+    id: 'Mengapresiasi saat kamu kembali aktif mengelola keuangan.',
+    en: 'Recognizes when you return to actively managing finances.',
+  },
+}
+
 export const defaultBadgeIcon = 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/1f3c5.svg'
 
 export const pieColors = [
