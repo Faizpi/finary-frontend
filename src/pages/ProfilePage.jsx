@@ -12,7 +12,6 @@ export default function ProfilePage({
   leaderboard,
   profile,
   profilePhoto,
-  setProfilePhoto,
   t,
   user,
 }) {

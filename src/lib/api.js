@@ -9,6 +9,19 @@ const api = axios.create({
   },
 })
 
+// 401 handler is injected by the auth layer instead of hardcoded here.
+// This decouples the HTTP layer from navigation/storage concerns (DIP).
+let onUnauthorized = () => {
+  // Default: clear token only. Navigation is the auth layer's responsibility.
+  localStorage.removeItem('finary_token')
+}
+
+export const setUnauthorizedHandler = (handler) => {
+  if (typeof handler === 'function') {
+    onUnauthorized = handler
+  }
+}
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('finary_token')
 
@@ -23,8 +36,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('finary_token')
-      window.location.replace('/')
+      onUnauthorized(error)
     }
 
     if (error.response?.status === 422) {

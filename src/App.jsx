@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { categoryOptions, getCurrentMonth, getToday, skillOptions } from './constants'
+import { useNotification, useTheme } from './contexts'
 import { useAppData } from './hooks/useAppData'
 import { useAuth } from './hooks/useAuth'
 import { useActions } from './hooks/useActions'
-import { authApi } from './lib/api'
+import { useFormSync } from './hooks/useFormSync'
+import { useProfileActions } from './hooks/useProfileActions'
+import { formatTransactionType } from './lib/format'
 import ErrorBoundary from './components/ErrorBoundary'
 import Navbar from './components/layout/Navbar'
 import SkeletonPage from './components/SkeletonPage'
@@ -17,15 +20,14 @@ import ProfilePage from './pages/ProfilePage'
 import TransactionsPage from './pages/TransactionsPage'
 
 function App() {
+  const { language, setLanguage, setTheme, isDarkMode, t } = useTheme()
+  const { message, setMessage, error, setError } = useNotification()
+
   // UI state
-  const [language, setLanguage] = useState(() => localStorage.getItem('finary_lang') || 'id')
-  const [theme, setTheme] = useState(() => localStorage.getItem('finary_theme') || 'light')
   const [activeTab, setActiveTab] = useState('dashboard')
   const [isNavOpen, setIsNavOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isAuthMenuOpen, setIsAuthMenuOpen] = useState(false)
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
   const [isBalanceVisible, setIsBalanceVisible] = useState(false)
   const [profilePhoto, setProfilePhoto] = useState('')
 
@@ -68,10 +70,6 @@ function App() {
   })
   const [forumForm, setForumForm] = useState({ title: '', body: '', tags: '' })
   const [forumReplyForms, setForumReplyForms] = useState({})
-
-  // Derived
-  const t = useCallback((idText, enText) => (language === 'en' ? enText : idText), [language])
-  const isDarkMode = theme === 'dark'
 
   const tabs = useMemo(
     () => [
@@ -181,134 +179,30 @@ function App() {
     t,
   })
 
-  // Side effects
-  useEffect(() => {
-    localStorage.setItem('finary_lang', language)
-  }, [language])
+  // Sync server data → local form state (extracted to avoid lint issues)
+  useFormSync({
+    user,
+    assessment,
+    showOnboarding,
+    getToday,
+    getCurrentMonth,
+    setAssessmentForm,
+    setTransactionForm,
+    setBudgetForm,
+    setForumForm,
+    setForumReplyForms,
+    setRecommendForm,
+    setMlClassifyResult,
+    setMlSideHustleResult,
+    setProfilePhoto,
+  })
 
-  // Auto-dismiss success messages after 4 seconds
-  useEffect(() => {
-    if (!message) return
-    const timer = setTimeout(() => setMessage(''), 4000)
-    return () => clearTimeout(timer)
-  }, [message])
+  const { handleProfilePhotoChange, handleRemovePhoto } = useProfileActions({
+    setProfilePhoto,
+    refreshInsights,
+  })
 
-  useEffect(() => {
-    localStorage.setItem('finary_theme', theme)
-    document.documentElement.dataset.theme = theme
-  }, [theme])
-
-  // Reset all form state when user logs out (user becomes null).
-  // This prevents stale data from a previous session leaking into a new
-  // registration / onboarding flow.
-  useEffect(() => {
-    if (user) return
-
-    setAssessmentForm({
-      monthly_income: '',
-      monthly_expense: '',
-      actual_savings: '',
-      budget_goal: '',
-      emergency_fund: '',
-      loan_payment: '',
-      skills: [],
-      experience_level: '',
-      interest_category: '',
-      available_hours_per_week: '',
-    })
-    setTransactionForm({ type: 'expense', category: '', amount: '', transaction_date: getToday(), note: '' })
-    setBudgetForm({ category: 'Makanan', period: getCurrentMonth(), monthly_limit: '' })
-    setForumForm({ title: '', body: '', tags: '' })
-    setForumReplyForms({})
-    setRecommendForm({ experience_level: '', available_hours_per_week: '', interest_category: '' })
-    setMlClassifyResult(null)
-    setMlSideHustleResult(null)
-  }, [user])
-
-  // Sync server assessment into the form — but NOT during onboarding so the
-  // first-time user always sees an empty form with placeholder guides.
-  useEffect(() => {
-    if (!assessment || showOnboarding) return
-
-    const sideHustleContext = assessment.metadata?.side_hustle_context || {}
-    setAssessmentForm((prev) => ({
-      ...prev,
-      monthly_income: String(assessment.monthly_income ?? ''),
-      monthly_expense: String(assessment.monthly_expense ?? ''),
-      actual_savings: String(assessment.actual_savings ?? ''),
-      budget_goal: String(assessment.budget_goal ?? ''),
-      emergency_fund: String(assessment.emergency_fund ?? ''),
-      loan_payment: String(assessment.loan_payment ?? ''),
-      skills: assessment.skills ?? sideHustleContext.skills ?? [],
-      experience_level: sideHustleContext.experience_level ?? '',
-      interest_category: sideHustleContext.interest_category ?? '',
-      available_hours_per_week: String(assessment.available_hours_per_week ?? sideHustleContext.available_hours_per_week ?? ''),
-    }))
-  }, [assessment, showOnboarding])
-
-  // Sync profile photo from server user data
-  useEffect(() => {
-    if (user?.avatar) {
-      setProfilePhoto(user.avatar)
-    } else {
-      setProfilePhoto('')
-    }
-  }, [user])
-
-  const handleProfilePhotoChange = (event) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    const img = new Image()
-    img.onload = async () => {
-      const maxSize = 200
-      const canvas = document.createElement('canvas')
-      let w = img.width
-      let h = img.height
-
-      if (w > maxSize || h > maxSize) {
-        if (w > h) {
-          h = Math.round((h * maxSize) / w)
-          w = maxSize
-        } else {
-          w = Math.round((w * maxSize) / h)
-          h = maxSize
-        }
-      }
-
-      canvas.width = w
-      canvas.height = h
-      const ctx = canvas.getContext('2d')
-      ctx.drawImage(img, 0, 0, w, h)
-      const resized = canvas.toDataURL('image/jpeg', 0.8)
-
-      setProfilePhoto(resized)
-
-      try {
-        await authApi.updateAvatar({ avatar: resized })
-        await refreshInsights()
-      } catch {
-        // Avatar saved locally even if server fails
-      }
-    }
-    img.src = URL.createObjectURL(file)
-  }
-
-  const handleRemovePhoto = async () => {
-    setProfilePhoto('')
-    try {
-      await authApi.updateAvatar({ avatar: '' })
-      await refreshInsights()
-    } catch {
-      // Ignore
-    }
-  }
-
-  const formatTransactionType = useCallback((type) => {
-    if (type === 'income') return t('Pemasukan', 'Income')
-    if (type === 'expense') return t('Pengeluaran', 'Expense')
-    return type
-  }, [t])
+  const formatTxType = useCallback((type) => formatTransactionType(type, t), [t])
 
   // Refresh insights when user opens profile/dashboard tabs
   useEffect(() => {
@@ -470,7 +364,6 @@ function App() {
               leaderboard={leaderboard}
               profile={profile}
               profilePhoto={profilePhoto}
-              setProfilePhoto={setProfilePhoto}
               t={t}
               user={user}
             />
@@ -483,7 +376,7 @@ function App() {
             budgets={budgets}
             emergencyFund={emergencyFund}
             emergencyUpdateValue={emergencyUpdateValue}
-            formatTransactionType={formatTransactionType}
+            formatTransactionType={formatTxType}
             handleBudgetSubmit={actions.handleBudgetSubmit}
             handleDeleteTransaction={actions.handleDeleteTransaction}
             handleEmergencyUpdateSubmit={actions.handleEmergencyUpdateSubmit}

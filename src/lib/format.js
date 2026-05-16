@@ -17,3 +17,14 @@ export const compactDate = (value) => {
     year: 'numeric',
   })
 }
+
+/**
+ * Translates a transaction type key to a localised label.
+ * @param {'income'|'expense'|string} type
+ * @param {function} t  - i18n helper (idText, enText) => string
+ */
+export const formatTransactionType = (type, t) => {
+  if (type === 'income') return t('Pemasukan', 'Income')
+  if (type === 'expense') return t('Pengeluaran', 'Expense')
+  return type
+}

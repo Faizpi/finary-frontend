@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { authApi } from '../lib/api'
+import { authApi, setUnauthorizedHandler } from '../lib/api'
 
 /**
  * Manages authentication state: token, bootstrapping, login, register, logout.
@@ -33,6 +33,14 @@ export function useAuth({ refreshAll, clearData, setActiveTab, setMessage, setEr
     clearData()
     setActiveTab('dashboard')
   }, [clearData, setActiveTab])
+
+  // Register the 401 handler so the API layer delegates to us (DIP)
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      clearSession()
+      setError(t('Sesi sudah berakhir. Silakan login kembali.', 'Session expired. Please log in again.'))
+    })
+  }, [clearSession, setError, t])
 
   // Bootstrap session on mount when token exists
   useEffect(() => {
