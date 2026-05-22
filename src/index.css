@@ -668,8 +668,8 @@ button:disabled {
 }
 
 .auth-hero-img {
-  width: min(360px, 82%);
-  max-height: 280px;
+  width: 600px;
+  max-height: 500px;
   object-fit: contain;
 }
 
