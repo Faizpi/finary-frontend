@@ -668,8 +668,8 @@ button:disabled {
 }
 
 .auth-hero-img {
-  width: min(280px, 70%);
-  max-height: 220px;
+  width: min(360px, 82%);
+  max-height: 280px;
   object-fit: contain;
 }
 
@@ -1032,7 +1032,7 @@ textarea::placeholder {
 }
 
 .balance-art img {
-  width: min(300px, 100%);
+  width: min(380px, 100%);
 }
 
 .section-head,
@@ -1552,8 +1552,8 @@ textarea::placeholder {
 .assessment-illustration,
 .forum-illustration,
 .faq-illustration {
-  width: min(260px, 100%);
-  max-height: 220px;
+  width: min(340px, 100%);
+  max-height: 280px;
   justify-self: center;
   object-fit: contain;
 }
@@ -1580,8 +1580,8 @@ textarea::placeholder {
 }
 
 .platform-logo img {
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
 }
 
 .platform-logo span {
@@ -1904,8 +1904,8 @@ tr:last-child td {
 }
 
 .assessment-preview.compact .assessment-illustration {
-  width: min(210px, 82%);
-  max-height: 170px;
+  width: min(280px, 90%);
+  max-height: 220px;
 }
 
 .classification-comparison {
