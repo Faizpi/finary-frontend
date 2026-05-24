@@ -5,7 +5,6 @@ export default function AuthPage({
   authMode,
   error,
   handleAuthSubmit,
-  handleDemoLogin,
   isAuthMenuOpen,
   isDarkMode,
   language,
@@ -70,18 +69,6 @@ export default function AuthPage({
                 role="menuitem"
               >
                 {isDarkMode ? t('Light', 'Light') : t('Dark', 'Dark')}
-              </button>
-              <button
-                type="button"
-                className="button ghost"
-                onClick={() => {
-                  setIsAuthMenuOpen(false)
-                  handleDemoLogin()
-                }}
-                disabled={loading}
-                role="menuitem"
-              >
-                {loading ? t('Memuat...', 'Loading...') : t('Masuk Demo', 'Demo Login')}
               </button>
             </div>
           </div>

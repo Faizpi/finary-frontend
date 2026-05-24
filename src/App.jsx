@@ -123,7 +123,6 @@ function App() {
     authMode, setAuthMode,
     authForm, setAuthForm,
     handleAuthSubmit,
-    handleDemoLogin,
     handleLogout,
   } = auth
 
@@ -230,7 +229,6 @@ function App() {
         authMode={authMode}
         error={error}
         handleAuthSubmit={handleAuthSubmit}
-        handleDemoLogin={handleDemoLogin}
         isAuthMenuOpen={isAuthMenuOpen}
         isDarkMode={isDarkMode}
         language={language}

@@ -132,36 +132,6 @@ export function useAuth({ refreshAll, clearData, setActiveTab, setMessage, setEr
     }
   }
 
-  const handleDemoLogin = async () => {
-    setLoading(true)
-    setError('')
-    setMessage('')
-
-    try {
-      const response = await authApi.login({
-        email: import.meta.env.VITE_DEMO_EMAIL || 'demo@finary.app',
-        password: import.meta.env.VITE_DEMO_PASSWORD || 'password123',
-      })
-
-      storeToken(response.data.token)
-      const { latestAssessment } = await refreshAll()
-
-      if (!latestAssessment) {
-        setActiveTab('assessment')
-        setMessage(t('Akun demo berhasil login. Lengkapi assessment awal terlebih dulu.', 'Demo account logged in. Complete the initial assessment first.'))
-      } else {
-        setMessage(t('Masuk dengan akun demo berhasil.', 'Logged in with demo account successfully.'))
-      }
-    } catch (err) {
-      if (!err?.response) {
-        setError(t('Tidak bisa terhubung ke API. Pastikan koneksi internet aktif.', 'Cannot connect to API. Please check your internet connection.'))
-      } else {
-        setError(err?.response?.data?.message || t('Akun demo belum siap. Jalankan seed database dahulu.', 'Demo account not ready. Please run the database seed first.'))
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleLogout = async () => {
     setLoading(true)
@@ -189,7 +159,6 @@ export function useAuth({ refreshAll, clearData, setActiveTab, setMessage, setEr
     storeToken,
     clearSession,
     handleAuthSubmit,
-    handleDemoLogin,
     handleLogout,
   }
 }
