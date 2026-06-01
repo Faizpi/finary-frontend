@@ -8,6 +8,8 @@ import {
   transactionApi,
 } from '../lib/api'
 
+const LEADERBOARD_PAGE_SIZE = 10
+
 /**
  * Manages all server-fetched data state.
  *
@@ -22,6 +24,7 @@ export function useAppData() {
   const [profile, setProfile] = useState(null)
   const [badges, setBadges] = useState(null)
   const [leaderboard, setLeaderboard] = useState([])
+  const [leaderboardMeta, setLeaderboardMeta] = useState(null)
   const [transactions, setTransactions] = useState([])
   const [transactionsMeta, setTransactionsMeta] = useState(null)
   const [budgets, setBudgets] = useState([])
@@ -36,6 +39,7 @@ export function useAppData() {
     setProfile(null)
     setBadges(null)
     setLeaderboard([])
+    setLeaderboardMeta(null)
     setTransactions([])
     setTransactionsMeta(null)
     setBudgets([])
@@ -62,7 +66,7 @@ export function useAppData() {
       dashboardApi.getDashboard(),
       dashboardApi.getProfile(),
       dashboardApi.getBadges(),
-      dashboardApi.getLeaderboard(),
+      dashboardApi.getLeaderboard({ per_page: LEADERBOARD_PAGE_SIZE, page: 1 }),
       transactionApi.list({ per_page: 30, page: 1 }),
       budgetApi.list(),
       assessmentApi.getLatest(),
@@ -76,6 +80,7 @@ export function useAppData() {
     setProfile(profileRes.data.data)
     setBadges(badgesRes.data.data)
     setLeaderboard(leaderboardRes.data.data || [])
+    setLeaderboardMeta(leaderboardRes.data.meta || null)
     setTransactions(transactionRes.data.data || [])
     setTransactionsMeta(transactionRes.data.meta || null)
     setBudgets(budgetRes.data.data || [])
@@ -106,12 +111,24 @@ export function useAppData() {
     const [profileRes, badgesRes, leaderboardRes] = await Promise.all([
       dashboardApi.getProfile(),
       dashboardApi.getBadges(),
-      dashboardApi.getLeaderboard(),
+      dashboardApi.getLeaderboard({ per_page: LEADERBOARD_PAGE_SIZE, page: 1 }),
     ])
 
     setProfile(profileRes.data.data)
     setBadges(badgesRes.data.data)
     setLeaderboard(leaderboardRes.data.data || [])
+    setLeaderboardMeta(leaderboardRes.data.meta || null)
+  }, [])
+
+  // Replace leaderboard page while preserving global rank from the API.
+  const loadLeaderboardPage = useCallback(async (page) => {
+    const res = await dashboardApi.getLeaderboard({
+      per_page: LEADERBOARD_PAGE_SIZE,
+      page,
+    })
+
+    setLeaderboard(res.data.data || [])
+    setLeaderboardMeta(res.data.meta || null)
   }, [])
 
   // Load more transactions (pagination)
@@ -133,6 +150,7 @@ export function useAppData() {
     profile,
     badges,
     leaderboard,
+    leaderboardMeta,
     transactions,
     transactionsMeta,
     budgets,
@@ -146,5 +164,6 @@ export function useAppData() {
     refreshInsights,
     refreshForum,
     loadMoreTransactions,
+    loadLeaderboardPage,
   }
 }

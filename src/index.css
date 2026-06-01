@@ -1503,6 +1503,41 @@ textarea::placeholder {
   list-style: none;
 }
 
+.leaderboard-heading,
+.leaderboard-footer,
+.leaderboard-pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.leaderboard-heading {
+  justify-content: space-between;
+  margin-bottom: var(--space-xs);
+}
+
+.leaderboard-heading h3,
+.leaderboard-heading p {
+  margin: 0;
+}
+
+.leaderboard-footer {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: var(--space-sm);
+}
+
+.leaderboard-pagination {
+  flex-wrap: wrap;
+}
+
+.leaderboard-pagination span {
+  min-width: 56px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
 .leaderboard li {
   display: flex;
   align-items: center;

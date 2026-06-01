@@ -91,6 +91,7 @@ function App() {
     profile,
     badges,
     leaderboard,
+    leaderboardMeta,
     transactions,
     transactionsMeta,
     budgets,
@@ -104,6 +105,7 @@ function App() {
     refreshInsights,
     refreshForum,
     loadMoreTransactions,
+    loadLeaderboardPage,
   } = appData
 
   // Auth hook
@@ -345,6 +347,8 @@ function App() {
             emergencyFund={emergencyFund}
             isBalanceVisible={isBalanceVisible}
             leaderboard={leaderboard}
+            leaderboardMeta={leaderboardMeta}
+            loadLeaderboardPage={loadLeaderboardPage}
             loanPayment={loanPayment}
             setIsBalanceVisible={setIsBalanceVisible}
             t={t}

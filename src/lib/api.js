@@ -63,7 +63,7 @@ export const dashboardApi = {
   getDashboard: () => api.get('/dashboard'),
   getProfile: () => api.get('/insights/profile'),
   getBadges: () => api.get('/insights/badges'),
-  getLeaderboard: () => api.get('/insights/leaderboard'),
+  getLeaderboard: (params = {}) => api.get('/insights/leaderboard', { params }),
 }
 
 export const assessmentApi = {

@@ -12,7 +12,9 @@ export default function DashboardPage({
   emergencyFund,
   isBalanceVisible,
   leaderboard,
+  leaderboardMeta,
   loanPayment,
+  loadLeaderboardPage,
   setIsBalanceVisible,
   t,
   transactions,
@@ -24,6 +26,10 @@ export default function DashboardPage({
   const savingsTarget = Number(assessment?.budget_goal || 0)
   const monthMax = Math.max(monthlyIncome, monthlyExpense, 1)
   const currentMonth = getCurrentMonth()
+  const leaderboardPage = leaderboardMeta?.current_page || 1
+  const leaderboardLastPage = leaderboardMeta?.last_page || 1
+  const leaderboardTotal = Number(leaderboardMeta?.total || leaderboard.length)
+  const leaderboardMonth = leaderboardMeta?.month || currentMonth
 
   const expenseSlices = useMemo(
     () => buildPieSlices(budgets.map((item) => ({
@@ -292,25 +298,66 @@ export default function DashboardPage({
                 </article>
 
                 <article className="inset leaderboard-panel">
-                  <h3>{t('Leaderboard', 'Leaderboard')}</h3>
+                  <div className="leaderboard-heading">
+                    <div>
+                      <h3>{t('Leaderboard', 'Leaderboard')}</h3>
+                      <p className="helper">{t('Periode', 'Period')} {leaderboardMonth}</p>
+                    </div>
+                    {leaderboardMeta && (
+                      <span className="status-pill">
+                        {leaderboardTotal} {t('user', 'users')}
+                      </span>
+                    )}
+                  </div>
                   {leaderboard.length === 0 ? (
                     <p className="helper">{t('Belum ada data leaderboard.', 'No leaderboard data yet.')}</p>
                   ) : (
-                    <ol className="leaderboard">
-                      {leaderboard.map((item) => (
-                        <li key={`${item.name}-${item.rank}`}>
-                          <span className="leaderboard-user">
-                            {item.avatar ? (
-                              <img className="leaderboard-avatar" src={item.avatar} alt="" loading="lazy" />
-                            ) : (
-                              <span className="leaderboard-avatar-fallback">{(item.name || '?')[0].toUpperCase()}</span>
-                            )}
-                            #{item.rank} {item.name}
-                          </span>
-                          <strong>{item.discipline_score}</strong>
-                        </li>
-                      ))}
-                    </ol>
+                    <>
+                      <ol className="leaderboard">
+                        {leaderboard.map((item) => (
+                          <li key={item.id || `${item.name}-${item.rank}`}>
+                            <span className="leaderboard-user">
+                              {item.avatar ? (
+                                <img className="leaderboard-avatar" src={item.avatar} alt="" loading="lazy" />
+                              ) : (
+                                <span className="leaderboard-avatar-fallback">{(item.name || '?')[0].toUpperCase()}</span>
+                              )}
+                              #{item.rank} {item.name}
+                            </span>
+                            <strong>{item.discipline_score}</strong>
+                          </li>
+                        ))}
+                      </ol>
+
+                      {leaderboardMeta && leaderboardLastPage > 1 && (
+                        <div className="leaderboard-footer">
+                          <div className="leaderboard-pagination" aria-label={t('Paginasi leaderboard', 'Leaderboard pagination')}>
+                            <button
+                              type="button"
+                              className="button ghost tiny"
+                              onClick={() => loadLeaderboardPage(leaderboardPage - 1)}
+                              disabled={leaderboardPage <= 1}
+                            >
+                              {t('Sebelumnya', 'Previous')}
+                            </button>
+                            <span>
+                              {leaderboardPage} / {leaderboardLastPage}
+                            </span>
+                            <button
+                              type="button"
+                              className="button ghost tiny"
+                              onClick={() => loadLeaderboardPage(leaderboardPage + 1)}
+                              disabled={!leaderboardMeta.has_more}
+                            >
+                              {t('Berikutnya', 'Next')}
+                            </button>
+                          </div>
+                          <small className="helper">
+                            {leaderboard.length} / {leaderboardTotal} {t('user ditampilkan', 'users shown')}
+                          </small>
+                        </div>
+                      )}
+                    </>
                   )}
                 </article>
               </div>
