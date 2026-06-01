@@ -115,11 +115,7 @@ export default function DashboardPage({
 
   return (
           <>
-            <section className="dashboard-toolbar" aria-label={t('Filter dashboard', 'Dashboard filters')}>
-              <div>
-                <p className="kicker">{t('Dashboard', 'Dashboard')}</p>
-                <h2>{t('Ringkasan Keuangan', 'Financial Summary')}</h2>
-              </div>
+            <section className="dashboard-toolbar panel" aria-label={t('Filter dashboard', 'Dashboard filters')}>
               <div className="dashboard-month-control">
                 <label htmlFor="dashboard-month">{t('Periode', 'Period')}</label>
                 <input

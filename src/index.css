@@ -1008,14 +1008,9 @@ textarea::placeholder {
 .dashboard-toolbar {
   display: flex;
   align-items: end;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: var(--space-sm);
   flex-wrap: wrap;
-}
-
-.dashboard-toolbar h2,
-.dashboard-toolbar p {
-  margin: 0;
 }
 
 .dashboard-month-control {
