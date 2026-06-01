@@ -60,7 +60,7 @@ export const authApi = {
 }
 
 export const dashboardApi = {
-  getDashboard: () => api.get('/dashboard'),
+  getDashboard: (params = {}) => api.get('/dashboard', { params }),
   getProfile: () => api.get('/insights/profile'),
   getBadges: () => api.get('/insights/badges'),
   getLeaderboard: (params = {}) => api.get('/insights/leaderboard', { params }),
@@ -80,7 +80,7 @@ export const transactionApi = {
 }
 
 export const budgetApi = {
-  list: () => api.get('/budgets'),
+  list: (params = {}) => api.get('/budgets', { params }),
   create: (payload) => api.post('/budgets', payload),
   update: (id, payload) => api.put(`/budgets/${id}`, payload),
   remove: (id) => api.delete(`/budgets/${id}`),

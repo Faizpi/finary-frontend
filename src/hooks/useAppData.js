@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import {
   assessmentApi,
   authApi,
@@ -9,6 +9,8 @@ import {
 } from '../lib/api'
 
 const LEADERBOARD_PAGE_SIZE = 10
+const TRANSACTION_PAGE_SIZE = 30
+const getCurrentMonthKey = () => new Date().toISOString().slice(0, 7)
 
 /**
  * Manages all server-fetched data state.
@@ -21,6 +23,8 @@ const LEADERBOARD_PAGE_SIZE = 10
 export function useAppData() {
   const [user, setUser] = useState(null)
   const [dashboard, setDashboard] = useState(null)
+  const [dashboardMonth, setDashboardMonthState] = useState(getCurrentMonthKey)
+  const dashboardMonthRef = useRef(dashboardMonth)
   const [profile, setProfile] = useState(null)
   const [badges, setBadges] = useState(null)
   const [leaderboard, setLeaderboard] = useState([])
@@ -33,9 +37,16 @@ export function useAppData() {
   const [recommendationSource, setRecommendationSource] = useState('-')
   const [forumPosts, setForumPosts] = useState([])
 
+  const setDashboardMonth = useCallback((month) => {
+    dashboardMonthRef.current = month
+    setDashboardMonthState(month)
+  }, [])
+
   const clearData = useCallback(() => {
+    const currentMonth = getCurrentMonthKey()
     setUser(null)
     setDashboard(null)
+    setDashboardMonth(currentMonth)
     setProfile(null)
     setBadges(null)
     setLeaderboard([])
@@ -47,10 +58,11 @@ export function useAppData() {
     setRecommendations([])
     setRecommendationSource('-')
     setForumPosts([])
-  }, [])
+  }, [setDashboardMonth])
 
   // Full refresh — used on bootstrap and after assessment submit
   const refreshAll = useCallback(async () => {
+    const month = dashboardMonthRef.current
     const [
       meRes,
       dashboardRes,
@@ -63,12 +75,12 @@ export function useAppData() {
       forumRes,
     ] = await Promise.all([
       authApi.me(),
-      dashboardApi.getDashboard(),
+      dashboardApi.getDashboard({ month }),
       dashboardApi.getProfile(),
       dashboardApi.getBadges(),
-      dashboardApi.getLeaderboard({ per_page: LEADERBOARD_PAGE_SIZE, page: 1 }),
-      transactionApi.list({ per_page: 30, page: 1 }),
-      budgetApi.list(),
+      dashboardApi.getLeaderboard({ month, per_page: LEADERBOARD_PAGE_SIZE, page: 1 }),
+      transactionApi.list({ month, per_page: TRANSACTION_PAGE_SIZE, page: 1 }),
+      budgetApi.list({ month }),
       assessmentApi.getLatest(),
       forumApi.list(),
     ])
@@ -92,10 +104,11 @@ export function useAppData() {
 
   // Lightweight refresh after transaction/budget CRUD — includes assessment for metric slides
   const refreshFinancial = useCallback(async () => {
+    const month = dashboardMonthRef.current
     const [dashboardRes, transactionRes, budgetRes, assessmentRes] = await Promise.all([
-      dashboardApi.getDashboard(),
-      transactionApi.list({ per_page: 30, page: 1 }),
-      budgetApi.list(),
+      dashboardApi.getDashboard({ month }),
+      transactionApi.list({ month, per_page: TRANSACTION_PAGE_SIZE, page: 1 }),
+      budgetApi.list({ month }),
       assessmentApi.getLatest(),
     ])
 
@@ -108,10 +121,11 @@ export function useAppData() {
 
   // Refresh insights — called when profile/badges/leaderboard tab opens or after assessment
   const refreshInsights = useCallback(async () => {
+    const month = dashboardMonthRef.current
     const [profileRes, badgesRes, leaderboardRes] = await Promise.all([
       dashboardApi.getProfile(),
       dashboardApi.getBadges(),
-      dashboardApi.getLeaderboard({ per_page: LEADERBOARD_PAGE_SIZE, page: 1 }),
+      dashboardApi.getLeaderboard({ month, per_page: LEADERBOARD_PAGE_SIZE, page: 1 }),
     ])
 
     setProfile(profileRes.data.data)
@@ -120,9 +134,29 @@ export function useAppData() {
     setLeaderboardMeta(leaderboardRes.data.meta || null)
   }, [])
 
+  const loadDashboardMonth = useCallback(async (month) => {
+    setDashboardMonth(month)
+
+    const [dashboardRes, transactionRes, budgetRes, leaderboardRes] = await Promise.all([
+      dashboardApi.getDashboard({ month }),
+      transactionApi.list({ month, per_page: TRANSACTION_PAGE_SIZE, page: 1 }),
+      budgetApi.list({ month }),
+      dashboardApi.getLeaderboard({ month, per_page: LEADERBOARD_PAGE_SIZE, page: 1 }),
+    ])
+
+    setDashboard(dashboardRes.data.data)
+    setTransactions(transactionRes.data.data || [])
+    setTransactionsMeta(transactionRes.data.meta || null)
+    setBudgets(budgetRes.data.data || [])
+    setLeaderboard(leaderboardRes.data.data || [])
+    setLeaderboardMeta(leaderboardRes.data.meta || null)
+  }, [setDashboardMonth])
+
   // Replace leaderboard page while preserving global rank from the API.
   const loadLeaderboardPage = useCallback(async (page) => {
+    const month = dashboardMonthRef.current
     const res = await dashboardApi.getLeaderboard({
+      month,
       per_page: LEADERBOARD_PAGE_SIZE,
       page,
     })
@@ -133,7 +167,8 @@ export function useAppData() {
 
   // Load more transactions (pagination)
   const loadMoreTransactions = useCallback(async (page) => {
-    const res = await transactionApi.list({ per_page: 30, page })
+    const month = dashboardMonthRef.current
+    const res = await transactionApi.list({ month, per_page: TRANSACTION_PAGE_SIZE, page })
     setTransactions((prev) => [...prev, ...(res.data.data || [])])
     setTransactionsMeta(res.data.meta || null)
   }, [])
@@ -147,6 +182,7 @@ export function useAppData() {
   return {
     user, setUser,
     dashboard,
+    dashboardMonth,
     profile,
     badges,
     leaderboard,
@@ -164,6 +200,7 @@ export function useAppData() {
     refreshInsights,
     refreshForum,
     loadMoreTransactions,
+    loadDashboardMonth,
     loadLeaderboardPage,
   }
 }

@@ -88,6 +88,7 @@ function App() {
   const {
     user,
     dashboard,
+    dashboardMonth,
     profile,
     badges,
     leaderboard,
@@ -105,6 +106,7 @@ function App() {
     refreshInsights,
     refreshForum,
     loadMoreTransactions,
+    loadDashboardMonth,
     loadLeaderboardPage,
   } = appData
 
@@ -204,6 +206,19 @@ function App() {
   })
 
   const formatTxType = useCallback((type) => formatTransactionType(type, t), [t])
+
+  const handleDashboardMonthChange = useCallback(async (month) => {
+    setLoading(true)
+    setError('')
+
+    try {
+      await loadDashboardMonth(month)
+    } catch (err) {
+      setError(err.message || t('Gagal memuat data bulan tersebut.', 'Failed to load that month.'))
+    } finally {
+      setLoading(false)
+    }
+  }, [loadDashboardMonth, setLoading, setError, t])
 
   // Refresh insights when user opens profile/dashboard tabs
   useEffect(() => {
@@ -344,13 +359,17 @@ function App() {
             badges={badges}
             budgets={budgets}
             dashboard={dashboard}
+            dashboardMonth={dashboardMonth}
             emergencyFund={emergencyFund}
             isBalanceVisible={isBalanceVisible}
             leaderboard={leaderboard}
             leaderboardMeta={leaderboardMeta}
             loadLeaderboardPage={loadLeaderboardPage}
+            loading={loading}
             loanPayment={loanPayment}
+            onDashboardMonthChange={handleDashboardMonthChange}
             setIsBalanceVisible={setIsBalanceVisible}
+            transactionsMeta={transactionsMeta}
             t={t}
             transactions={transactions}
           />

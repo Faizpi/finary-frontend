@@ -9,13 +9,17 @@ export default function DashboardPage({
   badges,
   budgets,
   dashboard,
+  dashboardMonth,
   emergencyFund,
   isBalanceVisible,
   leaderboard,
   leaderboardMeta,
+  loading,
   loanPayment,
   loadLeaderboardPage,
+  onDashboardMonthChange,
   setIsBalanceVisible,
+  transactionsMeta,
   t,
   transactions,
 }) {
@@ -26,10 +30,12 @@ export default function DashboardPage({
   const savingsTarget = Number(assessment?.budget_goal || 0)
   const monthMax = Math.max(monthlyIncome, monthlyExpense, 1)
   const currentMonth = getCurrentMonth()
+  const selectedMonth = dashboard?.period || dashboardMonth || currentMonth
+  const transactionTotal = Number(transactionsMeta?.total || transactions.length)
   const leaderboardPage = leaderboardMeta?.current_page || 1
   const leaderboardLastPage = leaderboardMeta?.last_page || 1
   const leaderboardTotal = Number(leaderboardMeta?.total || leaderboard.length)
-  const leaderboardMonth = leaderboardMeta?.month || currentMonth
+  const leaderboardMonth = leaderboardMeta?.month || selectedMonth
 
   const expenseSlices = useMemo(
     () => buildPieSlices(budgets.map((item) => ({
@@ -42,7 +48,7 @@ export default function DashboardPage({
   const incomeSlices = useMemo(() => {
     const incomeMap = new Map()
     transactions
-      .filter((item) => item.type === 'income' && String(item.transaction_date || '').slice(0, 7) === currentMonth)
+      .filter((item) => item.type === 'income' && String(item.transaction_date || '').slice(0, 7) === selectedMonth)
       .forEach((item) => {
         const key = item.category || t('Lainnya', 'Other')
         const nextValue = (incomeMap.get(key) || 0) + Number(item.amount || 0)
@@ -55,7 +61,7 @@ export default function DashboardPage({
     }))
 
     return buildPieSlices(items)
-  }, [transactions, t, currentMonth])
+  }, [transactions, t, selectedMonth])
 
   const expensePieBackground = useMemo(() => getPieBackground(expenseSlices), [expenseSlices])
   const incomePieBackground = useMemo(() => getPieBackground(incomeSlices), [incomeSlices])
@@ -105,7 +111,30 @@ export default function DashboardPage({
             <section className="panel balance-hero">
               <div className="balance-copy">
                 <p className="kicker">{t('Saldo Utama', 'Main Balance')}</p>
-                <h2>{t('Posisi keuanganmu bulan ini', 'Your financial position this month')}</h2>
+                <h2>{t('Posisi keuanganmu', 'Your financial position')}</h2>
+                <div className="dashboard-month-control">
+                  <label htmlFor="dashboard-month">{t('Periode', 'Period')}</label>
+                  <input
+                    id="dashboard-month"
+                    type="month"
+                    value={selectedMonth}
+                    max={currentMonth}
+                    onChange={(event) => {
+                      if (event.target.value) {
+                        onDashboardMonthChange(event.target.value)
+                      }
+                    }}
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    className="button ghost tiny"
+                    onClick={() => onDashboardMonthChange(currentMonth)}
+                    disabled={loading || selectedMonth === currentMonth}
+                  >
+                    {t('Bulan Ini', 'This Month')}
+                  </button>
+                </div>
                 <div className="balance-row">
                   <p className={`balance-amount ${isBalanceVisible ? '' : 'is-hidden'}`}>
                     {isBalanceVisible ? currency(monthlyBalance) : '******'}
@@ -120,7 +149,7 @@ export default function DashboardPage({
                 </div>
                 <p className="balance-caption">{t('Saldo acuan sebelum pengeluaran berikutnya.', 'Baseline balance before upcoming expenses.')}</p>
                 <div className="quick-metrics">
-                  <span>{transactions.length} {t('transaksi', 'transactions')}</span>
+                  <span>{transactionTotal} {t('transaksi', 'transactions')}</span>
                   <span>{budgets.length} {t('kantong aktif', 'active pockets')}</span>
                 </div>
               </div>
@@ -137,7 +166,7 @@ export default function DashboardPage({
               <div className="section-head">
                 <h3>{t('Ringkasan Cashflow', 'Cashflow Overview')}</h3>
                 <p className="helper">
-                  {t('Pemasukan dan pengeluaran bulan ini dalam satu tampilan.', 'Income and expense snapshot for this month.')}
+                  {t('Pemasukan dan pengeluaran periode terpilih dalam satu tampilan.', 'Income and expense snapshot for the selected period.')}
                 </p>
               </div>
               <div className="split-grid duo dashboard-overview">
@@ -151,7 +180,7 @@ export default function DashboardPage({
                   </div>
                   <div className="pie-legend">
                     {incomeSlices.slices.length === 0 ? (
-                      <p className="helper">{t('Belum ada pemasukan per kategori bulan ini.', 'No income by category recorded this month.')}</p>
+                      <p className="helper">{t('Belum ada pemasukan per kategori pada periode ini.', 'No income by category recorded for this period.')}</p>
                     ) : (
                       incomeSlices.slices.map((slice) => (
                         <div className="pie-legend-item" key={slice.label}>
@@ -173,7 +202,7 @@ export default function DashboardPage({
                   </div>
                   <div className="pie-legend">
                     {expenseSlices.slices.length === 0 ? (
-                      <p className="helper">{t('Belum ada pengeluaran per kantong bulan ini.', 'No pocket expenses recorded this month.')}</p>
+                      <p className="helper">{t('Belum ada pengeluaran per kantong pada periode ini.', 'No pocket expenses recorded for this period.')}</p>
                     ) : (
                       expenseSlices.slices.map((slice) => (
                         <div className="pie-legend-item" key={slice.label}>
@@ -218,7 +247,7 @@ export default function DashboardPage({
                   >
                     <div className="pocket-head">
                       <strong>{item.category}</strong>
-                      <span>{item.period || getCurrentMonth()}</span>
+                      <span>{item.period || selectedMonth}</span>
                     </div>
                     <p>{currency(item.spent)} / {currency(item.monthly_limit)}</p>
                     <div className="progress-wrap">
@@ -240,9 +269,9 @@ export default function DashboardPage({
 
             <section className="panel stack">
               <div className="section-head">
-                <h3>{t('Cashflow Bulan Ini', 'This Month Cashflow')}</h3>
+                <h3>{t('Cashflow Periode', 'Period Cashflow')}</h3>
                 <p className="helper">
-                  {t('Perbandingan pemasukan dan pengeluaran bulan berjalan.', 'Income vs expense for the current month.')}
+                  {t('Perbandingan pemasukan dan pengeluaran periode terpilih.', 'Income vs expense for the selected period.')}
                 </p>
               </div>
 
