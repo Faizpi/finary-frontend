@@ -1005,6 +1005,19 @@ textarea::placeholder {
   max-width: 740px;
 }
 
+.dashboard-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.dashboard-toolbar h2,
+.dashboard-toolbar p {
+  margin: 0;
+}
+
 .dashboard-month-control {
   display: flex;
   align-items: end;
@@ -1570,17 +1583,17 @@ textarea::placeholder {
   font-size: 0.85rem;
 }
 
-.leaderboard li:nth-child(1) {
+.leaderboard li.leaderboard-rank-1 {
   background: linear-gradient(90deg, rgba(255, 215, 0, 0.12), transparent);
   border-left: 3px solid #ffd700;
 }
 
-.leaderboard li:nth-child(2) {
+.leaderboard li.leaderboard-rank-2 {
   background: linear-gradient(90deg, rgba(192, 192, 192, 0.12), transparent);
   border-left: 3px solid #c0c0c0;
 }
 
-.leaderboard li:nth-child(3) {
+.leaderboard li.leaderboard-rank-3 {
   background: linear-gradient(90deg, rgba(205, 127, 50, 0.12), transparent);
   border-left: 3px solid #cd7f32;
 }

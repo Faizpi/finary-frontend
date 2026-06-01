@@ -36,6 +36,13 @@ export default function DashboardPage({
   const leaderboardLastPage = leaderboardMeta?.last_page || 1
   const leaderboardTotal = Number(leaderboardMeta?.total || leaderboard.length)
   const leaderboardMonth = leaderboardMeta?.month || selectedMonth
+  const podiumClass = (rank) => {
+    const numericRank = Number(rank)
+
+    return numericRank >= 1 && numericRank <= 3
+      ? `leaderboard-rank-${numericRank}`
+      : ''
+  }
 
   const expenseSlices = useMemo(
     () => buildPieSlices(budgets.map((item) => ({
@@ -108,33 +115,40 @@ export default function DashboardPage({
 
   return (
           <>
+            <section className="dashboard-toolbar" aria-label={t('Filter dashboard', 'Dashboard filters')}>
+              <div>
+                <p className="kicker">{t('Dashboard', 'Dashboard')}</p>
+                <h2>{t('Ringkasan Keuangan', 'Financial Summary')}</h2>
+              </div>
+              <div className="dashboard-month-control">
+                <label htmlFor="dashboard-month">{t('Periode', 'Period')}</label>
+                <input
+                  id="dashboard-month"
+                  type="month"
+                  value={selectedMonth}
+                  max={currentMonth}
+                  onChange={(event) => {
+                    if (event.target.value) {
+                      onDashboardMonthChange(event.target.value)
+                    }
+                  }}
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  className="button ghost tiny"
+                  onClick={() => onDashboardMonthChange(currentMonth)}
+                  disabled={loading || selectedMonth === currentMonth}
+                >
+                  {t('Bulan Ini', 'This Month')}
+                </button>
+              </div>
+            </section>
+
             <section className="panel balance-hero">
               <div className="balance-copy">
                 <p className="kicker">{t('Saldo Utama', 'Main Balance')}</p>
                 <h2>{t('Posisi keuanganmu', 'Your financial position')}</h2>
-                <div className="dashboard-month-control">
-                  <label htmlFor="dashboard-month">{t('Periode', 'Period')}</label>
-                  <input
-                    id="dashboard-month"
-                    type="month"
-                    value={selectedMonth}
-                    max={currentMonth}
-                    onChange={(event) => {
-                      if (event.target.value) {
-                        onDashboardMonthChange(event.target.value)
-                      }
-                    }}
-                    disabled={loading}
-                  />
-                  <button
-                    type="button"
-                    className="button ghost tiny"
-                    onClick={() => onDashboardMonthChange(currentMonth)}
-                    disabled={loading || selectedMonth === currentMonth}
-                  >
-                    {t('Bulan Ini', 'This Month')}
-                  </button>
-                </div>
                 <div className="balance-row">
                   <p className={`balance-amount ${isBalanceVisible ? '' : 'is-hidden'}`}>
                     {isBalanceVisible ? currency(monthlyBalance) : '******'}
@@ -344,7 +358,7 @@ export default function DashboardPage({
                     <>
                       <ol className="leaderboard">
                         {leaderboard.map((item) => (
-                          <li key={item.id || `${item.name}-${item.rank}`}>
+                          <li className={podiumClass(item.rank)} key={item.id || `${item.name}-${item.rank}`}>
                             <span className="leaderboard-user">
                               {item.avatar ? (
                                 <img className="leaderboard-avatar" src={item.avatar} alt="" loading="lazy" />
