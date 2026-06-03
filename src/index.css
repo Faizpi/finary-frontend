@@ -1615,6 +1615,17 @@ textarea::placeholder {
   gap: var(--space-md);
 }
 
+.hustle-hero > .form-grid,
+.hustle-hero-media,
+.recommend-card,
+.recommend-card-head > div {
+  min-width: 0;
+}
+
+.hustle-hero-media {
+  width: 100%;
+}
+
 .hustle-hero-media img,
 .assessment-illustration,
 .forum-illustration,
@@ -1631,6 +1642,13 @@ textarea::placeholder {
 
 .recommend-source {
   grid-column: 1 / -1;
+}
+
+.recommend-card h4,
+.hustle-platform,
+.hustle-project,
+.hustle-income {
+  overflow-wrap: anywhere;
 }
 
 .platform-logo {
@@ -1848,6 +1866,10 @@ tr:last-child td {
   box-shadow: var(--card-shadow);
   display: grid;
   gap: var(--space-sm);
+}
+
+.skeleton-hustle-hero {
+  grid-template-columns: minmax(0, 1fr) minmax(160px, auto);
 }
 
 .skeleton-hero-art {
@@ -2213,6 +2235,19 @@ tr:last-child td {
     grid-template-columns: 1fr;
   }
 
+  .hustle-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hustle-hero-media img {
+    width: min(360px, 100%);
+    max-height: 260px;
+  }
+
+  .skeleton-hustle-hero {
+    grid-template-columns: 1fr;
+  }
+
   .chart-board {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -2342,6 +2377,22 @@ tr:last-child td {
     grid-template-columns: 1fr;
   }
 
+  .hustle-hero {
+    gap: var(--space-sm);
+  }
+
+  .hustle-hero h3 {
+    font-size: 1.2rem;
+  }
+
+  .hustle-hero-media img {
+    max-height: 220px;
+  }
+
+  .recommend-card-head {
+    align-items: flex-start;
+  }
+
   .chart-single-row strong {
     justify-self: start;
   }
@@ -2378,6 +2429,21 @@ tr:last-child td {
 
   .prob-item {
     grid-template-columns: 1fr;
+  }
+
+  .hustle-hero-media img {
+    max-height: 180px;
+  }
+
+  .platform-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+  }
+
+  .platform-logo img {
+    width: 30px;
+    height: 30px;
   }
 }
 

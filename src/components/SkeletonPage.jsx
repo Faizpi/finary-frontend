@@ -168,7 +168,7 @@ function SkeletonAssessment() {
 function SkeletonHustle() {
   return (
     <div className="skeleton-panel">
-      <div className="skeleton-panel" style={{ gridTemplateColumns: '1fr auto', display: 'grid' }}>
+      <div className="skeleton-panel skeleton-hustle-hero">
         <div style={{ display: 'grid', gap: 12 }}>
           <div className="skeleton sk-h3 sk-w-60" />
           <div className="skeleton" style={{ height: 46, borderRadius: 18 }} />
